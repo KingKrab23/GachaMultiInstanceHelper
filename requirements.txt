@@ -1,0 +1,8 @@
+pyautogui
+selenium
+webdriver_manager
+Pillow
+opencv-python
+numpy
+pywin32
+customtkinter
