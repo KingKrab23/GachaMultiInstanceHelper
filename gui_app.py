@@ -137,29 +137,31 @@ class MacroGUI(ctk.CTk):
     def setup_hotkeys(self):
         """Set up global hotkeys for the application"""
         try:
-            # Define the key event handler within this method to have access to self
+            # Track the state of modifier keys
+            ctrl_pressed = False
+            alt_pressed = False
+            
             def on_key_event(e):
                 """Handle key events"""
-                # Only process key down events to avoid duplicate triggers
+                nonlocal ctrl_pressed, alt_pressed
+                print(e)
+                
+                # Normalize key name
+                key_name = e.name
+                if key_name.startswith('key_'): key_name = key_name[4:]
+                if key_name.startswith('left '): key_name = key_name[4:].strip()
+                if key_name.startswith('right '): key_name = key_name[5:].strip()
+                
+                # Update modifier key states
                 if e.event_type == keyboard.KEY_DOWN:
-                    # Handle numeric keys that might be reported differently
-                    key_name = e.name
-                    # Some keyboard libraries report number keys as '1', others as 'key_1'
-                    if key_name.startswith('key_'):
-                        key_name = key_name[4:]
+                    if key_name == 'ctrl':
+                        ctrl_pressed = True
+                    elif key_name == 'alt':
+                        alt_pressed = True
                     
-                    # For simple number keys (like "1" for rename_windows)
-                    if not keyboard.is_pressed('ctrl') and not keyboard.is_pressed('alt') and not keyboard.is_pressed('shift'):
-                        # Check for simple key mappings
-                        for action, hotkey in self.hotkey_mappings.items():
-                            if hotkey.lower() == key_name.lower():
-                                print(f"Hotkey detected: {key_name} for action: {action}")
-                                self.after(10, lambda a=action: self.handle_hotkey(a))
-                                return
-                    
-                    # For Ctrl+Alt+Number combinations
-                    elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('alt'):
-                        # Check for Ctrl+Alt combinations
+                    # Process number key presses with modifiers
+                    if key_name.isdigit() and ctrl_pressed and alt_pressed:
+                        # For Ctrl+Alt+Number combinations
                         for action, hotkey in self.hotkey_mappings.items():
                             # Normalize the hotkey format for comparison
                             normalized_hotkey = hotkey.lower().replace(' ', '')
@@ -169,6 +171,21 @@ class MacroGUI(ctk.CTk):
                                 print(f"Hotkey detected: Ctrl+Alt+{key_name} for action: {action}")
                                 self.after(10, lambda a=action: self.handle_hotkey(a))
                                 return
+                    
+                    # For simple number keys (without modifiers)
+                    elif key_name.isdigit() and not ctrl_pressed and not alt_pressed:
+                        for action, hotkey in self.hotkey_mappings.items():
+                            if hotkey.lower() == key_name.lower():
+                                print(f"Hotkey detected: {key_name} for action: {action}")
+                                self.after(10, lambda a=action: self.handle_hotkey(a))
+                                return
+                
+                # Reset modifier states on key up
+                elif e.event_type == keyboard.KEY_UP:
+                    if key_name == 'ctrl':
+                        ctrl_pressed = False
+                    elif key_name == 'alt':
+                        alt_pressed = False
             
             # Register a single keyboard hook for all hotkeys
             keyboard.hook(on_key_event)
@@ -177,7 +194,7 @@ class MacroGUI(ctk.CTk):
             for action, hotkey in self.hotkey_mappings.items():
                 print(f"Monitoring for hotkey: {hotkey} for action: {action}")
             
-            self.log("Global hotkeys registered using keyboard hook.")
+            self.log("Global hotkeys registered with modifier state tracking.")
             
             return True
         except Exception as e:
