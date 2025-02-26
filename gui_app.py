@@ -12,6 +12,7 @@ import csv
 from PIL import Image
 from pathlib import Path
 import functools
+import keyboard  # Added for global hotkeys
 
 # Global cache for memoria images to improve performance
 MEMORIA_IMAGE_CACHE = {}
@@ -34,17 +35,30 @@ class MacroGUI(ctk.CTk):
         self.main_frame.grid_columnconfigure(0, weight=6)  # Larger column for scan outlook
         self.main_frame.grid_columnconfigure(1, weight=1)  # Smaller column for force sync
 
+        # Define hotkey mappings
+        self.hotkey_mappings = {
+            "rename_windows": "Ctrl+Shift+R",
+            "type_emails": "Ctrl+Shift+T",
+            "scan_outlook": "Ctrl+Shift+S",
+            "force_sync": "Ctrl+Shift+F",
+            "enter_codes": "Ctrl+Shift+E",
+            "take_screenshots": "Ctrl+Shift+P",
+            "match_memorias": "Ctrl+Shift+M",
+            "view_memoria_results": "Ctrl+Shift+V",
+            "ld_player": "Ctrl+Shift+L"  # New hotkey for LD Player control
+        }
+
         # Create buttons
         self.rename_button = ctk.CTkButton(
             self.main_frame, 
-            text="Rename HBR Windows to Salted Emails",
+            text=f"Rename HBR Windows to Salted Emails [{self.hotkey_mappings['rename_windows']}]",
             command=self.rename_windows
         )
         self.rename_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
         self.type_emails_button = ctk.CTkButton(
             self.main_frame,
-            text="Type Salted Emails in LD Player Windows",
+            text=f"Type Salted Emails in LD Player Windows [{self.hotkey_mappings['type_emails']}]",
             command=self.type_emails
         )
         self.type_emails_button.grid(row=1, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
@@ -52,42 +66,42 @@ class MacroGUI(ctk.CTk):
         # Move Outlook buttons before Enter Verification button
         self.scan_outlook_button = ctk.CTkButton(
             self.main_frame,
-            text="Scan Outlook for Verification Codes",
+            text=f"Scan Outlook for Verification Codes [{self.hotkey_mappings['scan_outlook']}]",
             command=self.scan_outlook
         )
         self.scan_outlook_button.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
         self.force_sync_button = ctk.CTkButton(
             self.main_frame,
-            text="Force Outlook Sync",
+            text=f"Force Outlook Sync [{self.hotkey_mappings['force_sync']}]",
             command=self.force_sync
         )
         self.force_sync_button.grid(row=2, column=1, padx=20, pady=10, sticky="ew")
 
         self.enter_codes_button = ctk.CTkButton(
             self.main_frame,
-            text="Enter Verification Codes in LDPlayer Windows",
+            text=f"Enter Verification Codes in LDPlayer Windows [{self.hotkey_mappings['enter_codes']}]",
             command=self.enter_codes
         )
         self.enter_codes_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
         self.screenshot_button = ctk.CTkButton(
             self.main_frame,
-            text="Take Screenshots of LD Player Windows",
+            text=f"Take Screenshots of LD Player Windows [{self.hotkey_mappings['take_screenshots']}]",
             command=self.take_screenshots
         )
         self.screenshot_button.grid(row=4, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
         self.match_memorias_button = ctk.CTkButton(
             self.main_frame,
-            text="Match Memorias in Screenshots",
+            text=f"Match Memorias in Screenshots [{self.hotkey_mappings['match_memorias']}]",
             command=self.match_memorias
         )
         self.match_memorias_button.grid(row=5, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
         self.view_results_button = ctk.CTkButton(
             self.main_frame,
-            text="View Memoria Match Results",
+            text=f"View Memoria Match Results [{self.hotkey_mappings['view_memoria_results']}]",
             command=self.view_memoria_results
         )
         self.view_results_button.grid(row=6, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
@@ -108,6 +122,21 @@ class MacroGUI(ctk.CTk):
         # Message queue for thread-safe logging
         self.msg_queue = queue.Queue()
         self.after(100, self.check_queue)
+
+        # Global hotkey setup
+        keyboard.add_hotkey(self.hotkey_mappings['rename_windows'].lower(), self.rename_windows)
+        keyboard.add_hotkey(self.hotkey_mappings['type_emails'].lower(), self.type_emails)
+        keyboard.add_hotkey(self.hotkey_mappings['scan_outlook'].lower(), self.scan_outlook)
+        keyboard.add_hotkey(self.hotkey_mappings['force_sync'].lower(), self.force_sync)
+        keyboard.add_hotkey(self.hotkey_mappings['enter_codes'].lower(), self.enter_codes)
+        keyboard.add_hotkey(self.hotkey_mappings['take_screenshots'].lower(), self.take_screenshots)
+        keyboard.add_hotkey(self.hotkey_mappings['match_memorias'].lower(), self.match_memorias)
+        keyboard.add_hotkey(self.hotkey_mappings['view_memoria_results'].lower(), self.view_memoria_results)
+
+        # Log hotkey information
+        self.log("Global hotkeys registered. They will work even when this window is not in focus.")
+        for action, hotkey in self.hotkey_mappings.items():
+            self.log(f"  {action.replace('_', ' ').title()}: {hotkey}")
 
     def check_queue(self):
         """Check for new messages in the queue and display them"""

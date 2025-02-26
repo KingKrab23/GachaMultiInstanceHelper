@@ -1,1 +1,1322 @@
-{}
+{
+  "blizzmaps+0@gmail.com": [
+    {
+      "email": "blizzmaps+0@gmail.com",
+      "screenshot_path": "screenshots\\blizzmaps+0_at_gmail.com_20250223_121744.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:33.581787"
+    }
+  ],
+  "blizzmaps+1@gmail.com": [
+    {
+      "email": "blizzmaps+1@gmail.com",
+      "screenshot_path": "screenshots\\blizzmaps+1_at_gmail.com_20250223_121745.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:33.944816"
+    }
+  ],
+  "Inbox - Hill.Anthony@live.com - Outlook": [
+    {
+      "email": "Inbox - Hill.Anthony@live.com - Outlook",
+      "screenshot_path": "screenshots\\Inbox - Hill.Anthony_at_live.com - Outlook_20250225_121512.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:35.375708"
+    },
+    {
+      "email": "Inbox - Hill.Anthony@live.com - Outlook",
+      "screenshot_path": "screenshots\\Inbox - Hill.Anthony_at_live.com - Outlook_20250225_173425.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:36.784604"
+    },
+    {
+      "email": "Inbox - Hill.Anthony@live.com - Outlook",
+      "screenshot_path": "screenshots\\Inbox - Hill.Anthony_at_live.com - Outlook_20250225_173706.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:38.192455"
+    }
+  ],
+  "pimsh0+10@hotmail.com": [
+    {
+      "email": "pimsh0+10@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+10_at_hotmail.com_20250223_150246.png",
+      "matches": [
+        {
+          "memoria_name": "seira-ss1",
+          "memoria_path": "memorias\\seira-ss1.png",
+          "confidence": 0.700728714466095,
+          "position": [
+            65,
+            181
+          ],
+          "size": [
+            72,
+            36
+          ],
+          "position_score": 0.34760607005037303,
+          "size_score": 0.06948018528049409,
+          "color_similarity": 0,
+          "match_quality_score": 0.496906461217781,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:38.356942"
+    }
+  ],
+  "pimsh0+11@hotmail.com": [
+    {
+      "email": "pimsh0+11@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+11_at_hotmail.com_20250223_150249.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:38.525404"
+    }
+  ],
+  "pimsh0+12@hotmail.com": [
+    {
+      "email": "pimsh0+12@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+12_at_hotmail.com_20250223_150247.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:38.704426"
+    }
+  ],
+  "pimsh0+13@hotmail.com": [
+    {
+      "email": "pimsh0+13@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+13_at_hotmail.com_20250223_152130.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:38.880512"
+    },
+    {
+      "email": "pimsh0+13@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+13_at_hotmail.com_20250223_152236.png",
+      "matches": [
+        {
+          "memoria_name": "aoi-ss2",
+          "memoria_path": "memorias\\aoi-ss2.png",
+          "confidence": 1.0,
+          "position": [
+            125,
+            201
+          ],
+          "size": [
+            66,
+            51
+          ],
+          "position_score": 0.47416552613562146,
+          "size_score": 0.09022774060730829,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.8038558792878551,
+          "custom_score": 5,
+          "final_score": 5
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:39.055771"
+    },
+    {
+      "email": "pimsh0+13@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+13_at_hotmail.com_20250223_152250.png",
+      "matches": [
+        {
+          "memoria_name": "aoi-ss2",
+          "memoria_path": "memorias\\aoi-ss2.png",
+          "confidence": 0.9571405053138733,
+          "position": [
+            472,
+            355
+          ],
+          "size": [
+            66,
+            51
+          ],
+          "position_score": 0.6106274546475894,
+          "size_score": 0.09022774060730829,
+          "color_similarity": 0.9972276540238572,
+          "match_quality_score": 0.8051553335809583,
+          "custom_score": 5,
+          "final_score": 5
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:39.214501"
+    }
+  ],
+  "pimsh0+14@hotmail.com": [
+    {
+      "email": "pimsh0+14@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+14_at_hotmail.com_20250223_152131.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:39.375432"
+    },
+    {
+      "email": "pimsh0+14@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+14_at_hotmail.com_20250223_152240.png",
+      "matches": [
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.7476617097854614,
+          "position": [
+            465,
+            294
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.7244076745556115,
+          "size_score": 0.07334019557385486,
+          "color_similarity": 0.04972020314849353,
+          "match_quality_score": 0.6057846006546339,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:39.538435"
+    },
+    {
+      "email": "pimsh0+14@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+14_at_hotmail.com_20250223_152250.png",
+      "matches": [
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.7565349340438843,
+          "position": [
+            291,
+            216
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.8382823780036248,
+          "size_score": 0.07334019557385486,
+          "color_similarity": 0.04309724176505608,
+          "match_quality_score": 0.6332211797609466,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:39.703478"
+    }
+  ],
+  "pimsh0+15@hotmail.com": [
+    {
+      "email": "pimsh0+15@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+15_at_hotmail.com_20250223_152133.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:39.868677"
+    },
+    {
+      "email": "pimsh0+15@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+15_at_hotmail.com_20250223_152237.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.030421"
+    },
+    {
+      "email": "pimsh0+15@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+15_at_hotmail.com_20250223_152252.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.190450"
+    }
+  ],
+  "pimsh0+16@hotmail.com": [
+    {
+      "email": "pimsh0+16@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+16_at_hotmail.com_20250223_152131.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.346644"
+    },
+    {
+      "email": "pimsh0+16@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+16_at_hotmail.com_20250223_152239.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.507624"
+    },
+    {
+      "email": "pimsh0+16@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+16_at_hotmail.com_20250223_152251.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.673555"
+    }
+  ],
+  "pimsh0+17@hotmail.com": [
+    {
+      "email": "pimsh0+17@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+17_at_hotmail.com_20250223_152132.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:40.837233"
+    },
+    {
+      "email": "pimsh0+17@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+17_at_hotmail.com_20250223_152239.png",
+      "matches": [
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.7588978409767151,
+          "position": [
+            465,
+            216
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.7866053982243407,
+          "size_score": 0.07334019557385486,
+          "color_similarity": 0.024331044198767585,
+          "match_quality_score": 0.6224269082081594,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:41.000199"
+    },
+    {
+      "email": "pimsh0+17@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+17_at_hotmail.com_20250223_152251.png",
+      "matches": [
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.7469238638877869,
+          "position": [
+            118,
+            294
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.43790354067825576,
+          "size_score": 0.07334019557385486,
+          "color_similarity": 0.04780077948838026,
+          "match_quality_score": 0.5478491239745468,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:41.163865"
+    }
+  ],
+  "pimsh0+18@hotmail.com": [
+    {
+      "email": "pimsh0+18@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+18_at_hotmail.com_20250223_152132.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:41.322618"
+    },
+    {
+      "email": "pimsh0+18@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+18_at_hotmail.com_20250223_152238.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:41.484394"
+    },
+    {
+      "email": "pimsh0+18@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+18_at_hotmail.com_20250223_152252.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:41.650428"
+    }
+  ],
+  "pimsh0+19@hotmail.com": [
+    {
+      "email": "pimsh0+19@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+19_at_hotmail.com_20250223_154355.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:41.808644"
+    },
+    {
+      "email": "pimsh0+19@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+19_at_hotmail.com_20250223_154415.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:41.968553"
+    },
+    {
+      "email": "pimsh0+19@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+19_at_hotmail.com_20250223_154425.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:42.127770"
+    }
+  ],
+  "pimsh0+1@hotmail.com": [
+    {
+      "email": "pimsh0+1@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+1_at_hotmail.com_20250223_142749.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:42.453446"
+    }
+  ],
+  "pimsh0+20@hotmail.com": [
+    {
+      "email": "pimsh0+20@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+20_at_hotmail.com_20250223_154358.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:42.614649"
+    },
+    {
+      "email": "pimsh0+20@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+20_at_hotmail.com_20250223_154416.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:42.779870"
+    },
+    {
+      "email": "pimsh0+20@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+20_at_hotmail.com_20250223_154427.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:42.941901"
+    }
+  ],
+  "pimsh0+21@hotmail.com": [
+    {
+      "email": "pimsh0+21@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+21_at_hotmail.com_20250223_154357.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:43.112624"
+    },
+    {
+      "email": "pimsh0+21@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+21_at_hotmail.com_20250223_154417.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:43.270479"
+    },
+    {
+      "email": "pimsh0+21@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+21_at_hotmail.com_20250223_154426.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:43.431399"
+    }
+  ],
+  "pimsh0+22@hotmail.com": [
+    {
+      "email": "pimsh0+22@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+22_at_hotmail.com_20250223_154356.png",
+      "matches": [
+        {
+          "memoria_name": "yingying-ss1",
+          "memoria_path": "memorias\\yingying-ss1.png",
+          "confidence": 0.7701016664505005,
+          "position": [
+            174,
+            164
+          ],
+          "size": [
+            70,
+            54
+          ],
+          "position_score": 0.5748999783479618,
+          "size_score": 0.10132527020072055,
+          "color_similarity": 0.9917387319962843,
+          "match_quality_score": 0.6863473957595931,
+          "custom_score": 20,
+          "final_score": 20
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:43.597628"
+    },
+    {
+      "email": "pimsh0+22@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+22_at_hotmail.com_20250223_154428.png",
+      "matches": [
+        {
+          "memoria_name": "yingying-ss1",
+          "memoria_path": "memorias\\yingying-ss1.png",
+          "confidence": 0.7525948882102966,
+          "position": [
+            123,
+            197
+          ],
+          "size": [
+            70,
+            54
+          ],
+          "position_score": 0.4740165793715376,
+          "size_score": 0.10132527020072055,
+          "color_similarity": 0.9941492969660696,
+          "match_quality_score": 0.6559077055171645,
+          "custom_score": 20,
+          "final_score": 20
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:43.758443"
+    }
+  ],
+  "pimsh0+23@hotmail.com": [
+    {
+      "email": "pimsh0+23@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+23_at_hotmail.com_20250223_154357.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:43.919724"
+    },
+    {
+      "email": "pimsh0+23@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+23_at_hotmail.com_20250223_154417.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.090589"
+    },
+    {
+      "email": "pimsh0+23@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+23_at_hotmail.com_20250223_154426.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.253503"
+    }
+  ],
+  "pimsh0+24@hotmail.com": [
+    {
+      "email": "pimsh0+24@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+24_at_hotmail.com_20250223_154356.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.414313"
+    },
+    {
+      "email": "pimsh0+24@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+24_at_hotmail.com_20250223_154428.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.579652"
+    }
+  ],
+  "pimsh0+25@hotmail.com": [
+    {
+      "email": "pimsh0+25@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+25_at_hotmail.com_20250223_160740.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.761407"
+    }
+  ],
+  "pimsh0+26@hotmail.com": [
+    {
+      "email": "pimsh0+26@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+26_at_hotmail.com_20250223_160741.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:44.945303"
+    }
+  ],
+  "pimsh0+27@hotmail.com": [
+    {
+      "email": "pimsh0+27@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+27_at_hotmail.com_20250223_160741.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:45.130540"
+    }
+  ],
+  "pimsh0+28@hotmail.com": [
+    {
+      "email": "pimsh0+28@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+28_at_hotmail.com_20250223_160740.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:45.311323"
+    }
+  ],
+  "pimsh0+29@hotmail.com": [
+    {
+      "email": "pimsh0+29@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+29_at_hotmail.com_20250223_160742.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:45.496393"
+    }
+  ],
+  "pimsh0+2@hotmail.com": [
+    {
+      "email": "pimsh0+2@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+2_at_hotmail.com_20250223_142751.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:45.838314"
+    }
+  ],
+  "pimsh0+31@hotmail.com": [
+    {
+      "email": "pimsh0+31@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+31_at_hotmail.com_20250223_162227.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:46.023547"
+    }
+  ],
+  "pimsh0+32@hotmail.com": [
+    {
+      "email": "pimsh0+32@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+32_at_hotmail.com_20250223_162226.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:46.206615"
+    }
+  ],
+  "pimsh0+33@hotmail.com": [
+    {
+      "email": "pimsh0+33@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+33_at_hotmail.com_20250223_162226.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:46.386564"
+    }
+  ],
+  "pimsh0+34@hotmail.com": [
+    {
+      "email": "pimsh0+34@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+34_at_hotmail.com_20250223_162225.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:46.568556"
+    }
+  ],
+  "pimsh0+3@hotmail.com": [
+    {
+      "email": "pimsh0+3@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+3_at_hotmail.com_20250223_142750.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:46.910518"
+    }
+  ],
+  "pimsh0+41@hotmail.com": [
+    {
+      "email": "pimsh0+41@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+41_at_hotmail.com_20250224_100356.png",
+      "matches": [
+        {
+          "memoria_name": "seira-ss1",
+          "memoria_path": "memorias\\seira-ss1.png",
+          "confidence": 0.7094365954399109,
+          "position": [
+            478,
+            141
+          ],
+          "size": [
+            72,
+            36
+          ],
+          "position_score": 0.7119634152092558,
+          "size_score": 0.06948018528049409,
+          "color_similarity": 0,
+          "match_quality_score": 0.575002658833847,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:47.074389"
+    }
+  ],
+  "pimsh0+42@hotmail.com": [
+    {
+      "email": "pimsh0+42@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+42_at_hotmail.com_20250224_100356.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:47.233071"
+    }
+  ],
+  "pimsh0+44@hotmail.com": [
+    {
+      "email": "pimsh0+44@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+44_at_hotmail.com_20250224_100357.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:47.393493"
+    }
+  ],
+  "pimsh0+46@hotmail.com": [
+    {
+      "email": "pimsh0+46@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+46_at_hotmail.com_20250224_100357.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:47.552438"
+    }
+  ],
+  "pimsh0+47@hotmail.com": [
+    {
+      "email": "pimsh0+47@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+47_at_hotmail.com_20250224_100354.png",
+      "matches": [
+        {
+          "memoria_name": "chie-ss2",
+          "memoria_path": "memorias\\chie-ss2.png",
+          "confidence": 0.7749115228652954,
+          "position": [
+            476,
+            133
+          ],
+          "size": [
+            68,
+            43
+          ],
+          "position_score": 0.7136018078502535,
+          "size_score": 0.07837965345685366,
+          "color_similarity": 0.1596192860713662,
+          "match_quality_score": 0.6314671692420499,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:47.712680"
+    }
+  ],
+  "pimsh0+49@hotmail.com": [
+    {
+      "email": "pimsh0+49@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+49_at_hotmail.com_20250225_121510.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:47.890543"
+    }
+  ],
+  "pimsh0+4@hotmail.com": [
+    {
+      "email": "pimsh0+4@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+4_at_hotmail.com_20250223_142749.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:48.219633"
+    }
+  ],
+  "pimsh0+50@hotmail.com": [
+    {
+      "email": "pimsh0+50@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+50_at_hotmail.com_20250225_121510.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9999995231628418,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986802530165431,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:48.400507"
+    }
+  ],
+  "pimsh0+51@hotmail.com": [
+    {
+      "email": "pimsh0+51@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+51_at_hotmail.com_20250225_121511.png",
+      "matches": [
+        {
+          "memoria_name": "seika-ss1",
+          "memoria_path": "memorias\\seika-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            637,
+            124
+          ],
+          "size": [
+            130,
+            61
+          ],
+          "position_score": 0.4103961876440212,
+          "size_score": 0.1889552893184266,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.8009747664606469,
+          "custom_score": 3,
+          "final_score": 3
+        },
+        {
+          "memoria_name": "tama-ss4",
+          "memoria_path": "memorias\\tama-ss4.png",
+          "confidence": 0.9999996423721313,
+          "position": [
+            470,
+            124
+          ],
+          "size": [
+            110,
+            58
+          ],
+          "position_score": 0.7248622572626697,
+          "size_score": 0.15202203604685519,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.8601744404804982,
+          "custom_score": 2,
+          "final_score": 2
+        },
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9960454106330872,
+          "position": [
+            270,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.7306963628843405,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 0.9980741494157733,
+          "match_quality_score": 0.8620381777435497,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:48.583902"
+    }
+  ],
+  "pimsh0+52@hotmail.com": [
+    {
+      "email": "pimsh0+52@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+52_at_hotmail.com_20250225_121511.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:48.764272"
+    }
+  ],
+  "pimsh0+53@hotmail.com": [
+    {
+      "email": "pimsh0+53@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+53_at_hotmail.com_20250225_121509.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:48.943069"
+    }
+  ],
+  "pimsh0+54@hotmail.com": [
+    {
+      "email": "pimsh0+54@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+54_at_hotmail.com_20250225_121509.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:49.124142"
+    }
+  ],
+  "pimsh0+5@hotmail.com": [
+    {
+      "email": "pimsh0+5@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+5_at_hotmail.com_20250223_150245.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:49.283217"
+    }
+  ],
+  "pimsh0+67@hotmail.com": [
+    {
+      "email": "pimsh0+67@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+67_at_hotmail.com_20250225_173423.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9960454106330872,
+          "position": [
+            270,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.7306963628843405,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 0.9980741494157733,
+          "match_quality_score": 0.8620381777435497,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:49.469454"
+    },
+    {
+      "email": "pimsh0+67@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+67_at_hotmail.com_20250225_173709.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9960461258888245,
+          "position": [
+            270,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.7306963628843405,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 0.9980741494157733,
+          "match_quality_score": 0.8620386068969921,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:49.653057"
+    }
+  ],
+  "pimsh0+68@hotmail.com": [
+    {
+      "email": "pimsh0+68@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+68_at_hotmail.com_20250225_173424.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:49.836590"
+    },
+    {
+      "email": "pimsh0+68@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+68_at_hotmail.com_20250225_173708.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9999995231628418,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986802530165431,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.021580"
+    }
+  ],
+  "pimsh0+69@hotmail.com": [
+    {
+      "email": "pimsh0+69@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+69_at_hotmail.com_20250225_173425.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9999995231628418,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986802530165431,
+          "custom_score": 1,
+          "final_score": 1
+        },
+        {
+          "memoria_name": "seira-ss1",
+          "memoria_path": "memorias\\seira-ss1.png",
+          "confidence": 0.9839565753936768,
+          "position": [
+            326,
+            149
+          ],
+          "size": [
+            72,
+            36
+          ],
+          "position_score": 0.7928618411831189,
+          "size_score": 0.06176193063220198,
+          "color_similarity": 0,
+          "match_quality_score": 0.75512250653605,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.201557"
+    },
+    {
+      "email": "pimsh0+69@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+69_at_hotmail.com_20250225_173707.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 0.9999995231628418,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986802530165431,
+          "custom_score": 1,
+          "final_score": 1
+        },
+        {
+          "memoria_name": "seira-ss1",
+          "memoria_path": "memorias\\seira-ss1.png",
+          "confidence": 0.9839565753936768,
+          "position": [
+            326,
+            149
+          ],
+          "size": [
+            72,
+            36
+          ],
+          "position_score": 0.7928618411831189,
+          "size_score": 0.06176193063220198,
+          "color_similarity": 0,
+          "match_quality_score": 0.75512250653605,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.380402"
+    }
+  ],
+  "pimsh0+70@hotmail.com": [
+    {
+      "email": "pimsh0+70@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+70_at_hotmail.com_20250225_173422.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.561344"
+    },
+    {
+      "email": "pimsh0+70@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+70_at_hotmail.com_20250225_173710.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.742342"
+    }
+  ],
+  "pimsh0+71@hotmail.com": [
+    {
+      "email": "pimsh0+71@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+71_at_hotmail.com_20250225_173423.png",
+      "matches": [
+        {
+          "memoria_name": "seika-ss1",
+          "memoria_path": "memorias\\seika-ss1.png",
+          "confidence": 0.9812046885490417,
+          "position": [
+            267,
+            124
+          ],
+          "size": [
+            130,
+            61
+          ],
+          "position_score": 0.7328397919032101,
+          "size_score": 0.1889552893184266,
+          "color_similarity": 0.9889493804718207,
+          "match_quality_score": 0.8530812384890918,
+          "custom_score": 3,
+          "final_score": 3
+        },
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        },
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.8514922857284546,
+          "position": [
+            681,
+            147
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.3880203934014691,
+          "size_score": 0.06519314900065765,
+          "color_similarity": 0.02169395006980076,
+          "match_quality_score": 0.5971881600244124,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:50.923532"
+    },
+    {
+      "email": "pimsh0+71@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+71_at_hotmail.com_20250225_173709.png",
+      "matches": [
+        {
+          "memoria_name": "seika-ss1",
+          "memoria_path": "memorias\\seika-ss1.png",
+          "confidence": 0.9812046885490417,
+          "position": [
+            267,
+            124
+          ],
+          "size": [
+            130,
+            61
+          ],
+          "position_score": 0.7328397919032101,
+          "size_score": 0.1889552893184266,
+          "color_similarity": 0.9889493804718207,
+          "match_quality_score": 0.8530812384890918,
+          "custom_score": 3,
+          "final_score": 3
+        },
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        },
+        {
+          "memoria_name": "yuina-ss3",
+          "memoria_path": "memorias\\yuina-ss3.png",
+          "confidence": 0.8514922857284546,
+          "position": [
+            681,
+            147
+          ],
+          "size": [
+            72,
+            38
+          ],
+          "position_score": 0.3880203934014691,
+          "size_score": 0.06519314900065765,
+          "color_similarity": 0.02169395006980076,
+          "match_quality_score": 0.5971881600244124,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:51.106274"
+    }
+  ],
+  "pimsh0+72@hotmail.com": [
+    {
+      "email": "pimsh0+72@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+72_at_hotmail.com_20250225_173424.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:51.285943"
+    },
+    {
+      "email": "pimsh0+72@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+72_at_hotmail.com_20250225_173708.png",
+      "matches": [
+        {
+          "memoria_name": "tama-ss1",
+          "memoria_path": "memorias\\tama-ss1.png",
+          "confidence": 1.0,
+          "position": [
+            85,
+            122
+          ],
+          "size": [
+            123,
+            63
+          ],
+          "position_score": 0.40108147636793023,
+          "size_score": 0.1846424384525205,
+          "color_similarity": 1.0,
+          "match_quality_score": 0.7986805391188381,
+          "custom_score": 1,
+          "final_score": 1
+        }
+      ],
+      "timestamp": "2025-02-25T17:44:51.472498"
+    }
+  ],
+  "pimsh0+8@hotmail.com": [
+    {
+      "email": "pimsh0+8@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+8_at_hotmail.com_20250223_150248.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:51.634804"
+    }
+  ],
+  "pimsh0+9@hotmail.com": [
+    {
+      "email": "pimsh0+9@hotmail.com",
+      "screenshot_path": "screenshots\\pimsh0+9_at_hotmail.com_20250223_150247.png",
+      "matches": [],
+      "timestamp": "2025-02-25T17:44:51.802579"
+    }
+  ]
+}

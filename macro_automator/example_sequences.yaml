@@ -1,0 +1,44 @@
+settings:
+  default_delay: 0.1  # Default delay between actions in seconds
+
+macros:
+  # Example sequence that types "Hello World" and presses Enter
+  HelloWorld:
+    actions:
+      - type: type_text
+        text: "Hello World"
+      - type: wait
+        seconds: 0.5
+      - type: key_press
+        key: enter
+    iteration_delay: 1.0
+
+  # Example sequence that clicks at screen center
+  ClickCenter:
+    actions:
+      - type: find_window
+        window_name: Notepad
+      - type: mouse_click
+        x: 400
+        y: 300
+        button: left
+    iteration_delay: 0.5
+
+  # Example sequence that presses arrow keys in a pattern
+  ArrowPattern:
+    actions:
+      - type: key_press
+        key: up
+      - type: wait
+        seconds: 0.2
+      - type: key_press
+        key: right
+      - type: wait
+        seconds: 0.2
+      - type: key_press
+        key: down
+      - type: wait
+        seconds: 0.2
+      - type: key_press
+        key: left
+    iteration_delay: 1.0
