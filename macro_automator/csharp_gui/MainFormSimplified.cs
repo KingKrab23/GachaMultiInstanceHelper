@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace MacroAutomatorGUI
 {
@@ -20,6 +21,9 @@ namespace MacroAutomatorGUI
         private Button startButton;
         private Button stopButton;
         private Button recordButton;
+        private Button saveButton;
+        private Button deleteButton;
+        private Button loadButton;
         private NumericUpDown iterationsInput;
         private CheckBox loopForeverCheckbox;
         private StatusStrip statusStrip;
@@ -85,7 +89,7 @@ namespace MacroAutomatorGUI
 
             stopButton = new Button
             {
-                Text = "Stop (Esc)",
+                Text = "Stop (F6)",
                 BackColor = Color.FromArgb(200, 0, 0),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -106,6 +110,18 @@ namespace MacroAutomatorGUI
             };
             recordButton.Click += RecordButton_Click;
             controlPanel.Controls.Add(recordButton);
+
+            loadButton = new Button
+            {
+                Text = "Load Sequence",
+                BackColor = Color.FromArgb(0, 120, 0),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(150, 40),
+                Location = new Point(500, 20)
+            };
+            loadButton.Click += LoadButton_Click;
+            controlPanel.Controls.Add(loadButton);
 
             Label iterationsLabel = new Label
             {
@@ -150,13 +166,14 @@ namespace MacroAutomatorGUI
             TableLayoutPanel sequencesLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                RowCount = 2,
+                RowCount = 3,
                 ColumnCount = 1,
                 BackColor = Color.FromArgb(35, 35, 35)
             };
             
-            sequencesLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-            sequencesLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            sequencesLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Header
+            sequencesLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // List
+            sequencesLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Buttons
             sequencesPanel.Controls.Add(sequencesLayout);
 
             Label sequencesLabel = new Label
@@ -164,8 +181,7 @@ namespace MacroAutomatorGUI
                 Text = "Available Sequences",
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                AutoSize = true,
-                Dock = DockStyle.Fill
+                AutoSize = true
             };
             sequencesLayout.Controls.Add(sequencesLabel, 0, 0);
 
@@ -173,11 +189,43 @@ namespace MacroAutomatorGUI
             {
                 BackColor = Color.FromArgb(50, 50, 50),
                 ForeColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
                 Dock = DockStyle.Fill,
                 Font = new Font("Consolas", 10F)
             };
+            sequencesList.SelectedIndexChanged += SequencesList_SelectedIndexChanged;
             sequencesLayout.Controls.Add(sequencesList, 0, 1);
+
+            // Add buttons panel for save and delete
+            Panel sequenceButtonsPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(35, 35, 35)
+            };
+            sequencesLayout.Controls.Add(sequenceButtonsPanel, 0, 2);
+
+            saveButton = new Button
+            {
+                Text = "Save Sequence",
+                BackColor = Color.FromArgb(0, 120, 0),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(120, 30),
+                Location = new Point(10, 10)
+            };
+            saveButton.Click += SaveButton_Click;
+            sequenceButtonsPanel.Controls.Add(saveButton);
+
+            deleteButton = new Button
+            {
+                Text = "Delete Sequence",
+                BackColor = Color.FromArgb(120, 0, 0),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(120, 30),
+                Location = new Point(140, 10)
+            };
+            deleteButton.Click += DeleteButton_Click;
+            sequenceButtonsPanel.Controls.Add(deleteButton);
 
             // Bottom panel (log)
             Panel logPanel = new Panel
@@ -243,7 +291,7 @@ namespace MacroAutomatorGUI
                 {
                     StartButton_Click(sender, e);
                 }
-                else if (e.KeyCode == Keys.Escape)
+                else if (e.KeyCode == Keys.F6)
                 {
                     StopButton_Click(sender, e);
                 }
@@ -254,6 +302,70 @@ namespace MacroAutomatorGUI
         {
             AddLogMessage("Loading sequences...");
             
+            // Clear existing sequences
+            macroSequences.Clear();
+            
+            // Create sequences directory if it doesn't exist
+            string sequencesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sequences");
+            if (!Directory.Exists(sequencesDir))
+            {
+                Directory.CreateDirectory(sequencesDir);
+                AddLogMessage("Created sequences directory");
+            }
+            
+            // Load sequences from files
+            bool loadedAnySequences = false;
+            try
+            {
+                string[] sequenceFiles = Directory.GetFiles(sequencesDir, "*.json");
+                foreach (string file in sequenceFiles)
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(file);
+                        MacroSequence sequence = JsonConvert.DeserializeObject<MacroSequence>(json);
+                        if (sequence != null)
+                        {
+                            macroSequences.Add(sequence);
+                            loadedAnySequences = true;
+                            AddLogMessage($"Loaded sequence: {sequence.Name}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AddLogMessage($"Error loading sequence file {Path.GetFileName(file)}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLogMessage($"Error accessing sequences directory: {ex.Message}");
+            }
+            
+            // Add example sequences if no sequences were loaded
+            if (!loadedAnySequences)
+            {
+                AddLogMessage("No saved sequences found. Adding example sequences.");
+                AddExampleSequences();
+            }
+            
+            // Update the list
+            sequencesList.Items.Clear();
+            foreach (var sequence in macroSequences)
+            {
+                sequencesList.Items.Add(sequence.Name);
+            }
+            
+            if (sequencesList.Items.Count > 0)
+            {
+                sequencesList.SelectedIndex = 0;
+            }
+            
+            AddLogMessage($"Loaded {macroSequences.Count} sequences");
+        }
+        
+        private void AddExampleSequences()
+        {
             // Add example sequences
             macroSequences.Add(new MacroSequence
             {
@@ -320,19 +432,28 @@ namespace MacroAutomatorGUI
                 }
             });
             
-            // Update the list
-            sequencesList.Items.Clear();
-            foreach (var sequence in macroSequences)
+            // Add hotkey combination example
+            macroSequences.Add(new MacroSequence
             {
-                sequencesList.Items.Add(sequence.Name);
-            }
-            
-            if (sequencesList.Items.Count > 0)
-            {
-                sequencesList.SelectedIndex = 0;
-            }
-            
-            AddLogMessage($"Loaded {macroSequences.Count} sequences");
+                Name = "Hotkey Combinations",
+                Description = "Demonstrates various hotkey combinations",
+                Actions = new List<MacroAction>
+                {
+                    MacroAction.CreateTypeText("Demonstrating hotkey combinations:"),
+                    MacroAction.CreateSleep(1000),
+                    MacroAction.CreateKeyPress("ctrl+a"), // Select all
+                    MacroAction.CreateSleep(500),
+                    MacroAction.CreateKeyPress("ctrl+c"), // Copy
+                    MacroAction.CreateSleep(500),
+                    MacroAction.CreateKeyPress("right"), // Move cursor right
+                    MacroAction.CreateSleep(500),
+                    MacroAction.CreateKeyPress("ctrl+v"), // Paste
+                    MacroAction.CreateSleep(500),
+                    MacroAction.CreateKeyPress("ctrl+shift+left"), // Select word to left
+                    MacroAction.CreateSleep(500),
+                    MacroAction.CreateKeyPress("delete") // Delete selection
+                }
+            });
         }
 
         private void StartButton_Click(object sender, EventArgs e)
@@ -632,6 +753,100 @@ namespace MacroAutomatorGUI
             }
         }
 
+        private void LoadButton_Click(object sender, EventArgs e)
+        {
+            LoadSequenceFromFile();
+        }
+
+        private void LoadSequenceFromFile()
+        {
+            using (OpenFileDialog openDialog = new OpenFileDialog())
+            {
+                string sequencesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sequences");
+                if (!Directory.Exists(sequencesDir))
+                {
+                    Directory.CreateDirectory(sequencesDir);
+                }
+                
+                openDialog.InitialDirectory = sequencesDir;
+                openDialog.Filter = "JSON Files (*.json)|*.json";
+                openDialog.DefaultExt = "json";
+                openDialog.Multiselect = false;
+                
+                if (openDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(openDialog.FileName);
+                        MacroSequence sequence = JsonConvert.DeserializeObject<MacroSequence>(json);
+                        
+                        if (sequence != null)
+                        {
+                            // Check if a sequence with the same name already exists
+                            int existingIndex = -1;
+                            for (int i = 0; i < macroSequences.Count; i++)
+                            {
+                                if (macroSequences[i].Name == sequence.Name)
+                                {
+                                    existingIndex = i;
+                                    break;
+                                }
+                            }
+                            
+                            if (existingIndex >= 0)
+                            {
+                                // Replace existing sequence
+                                macroSequences[existingIndex] = sequence;
+                                sequencesList.Items[existingIndex] = sequence.Name;
+                                sequencesList.SelectedIndex = existingIndex;
+                                AddLogMessage($"Updated existing sequence: {sequence.Name}");
+                            }
+                            else
+                            {
+                                // Add new sequence
+                                macroSequences.Add(sequence);
+                                sequencesList.Items.Add(sequence.Name);
+                                sequencesList.SelectedIndex = macroSequences.Count - 1;
+                                AddLogMessage($"Loaded sequence: {sequence.Name}");
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to load sequence. The file may be corrupted.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error loading sequence: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        AddLogMessage($"Error loading sequence: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        private void SequencesList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Update UI based on selected sequence
+            int selectedIndex = sequencesList.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < macroSequences.Count)
+            {
+                MacroSequence sequence = macroSequences[selectedIndex];
+                AddLogMessage($"Selected sequence: {sequence.Name}");
+                
+                // Enable buttons for the selected sequence
+                startButton.Enabled = true;
+                saveButton.Enabled = true;
+                deleteButton.Enabled = true;
+            }
+            else
+            {
+                // Disable buttons if no sequence is selected
+                startButton.Enabled = false;
+                saveButton.Enabled = false;
+                deleteButton.Enabled = false;
+            }
+        }
+
         private void AddLogMessage(string message)
         {
             if (this.InvokeRequired)
@@ -667,6 +882,117 @@ namespace MacroAutomatorGUI
             }
             
             base.OnFormClosing(e);
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            int selectedIndex = sequencesList.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < macroSequences.Count)
+            {
+                MacroSequence sequence = macroSequences[selectedIndex];
+                
+                // Show save dialog to allow user to rename the sequence
+                using (SaveFileDialog saveDialog = new SaveFileDialog())
+                {
+                    string sequencesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sequences");
+                    if (!Directory.Exists(sequencesDir))
+                    {
+                        Directory.CreateDirectory(sequencesDir);
+                    }
+                    
+                    saveDialog.InitialDirectory = sequencesDir;
+                    saveDialog.Filter = "JSON Files (*.json)|*.json";
+                    saveDialog.DefaultExt = "json";
+                    saveDialog.FileName = SanitizeFileName(sequence.Name);
+                    
+                    if (saveDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                            // Update sequence name based on file name
+                            string fileName = Path.GetFileNameWithoutExtension(saveDialog.FileName);
+                            sequence.Name = fileName;
+                            
+                            // Serialize and save
+                            string json = JsonConvert.SerializeObject(sequence, Formatting.Indented);
+                            File.WriteAllText(saveDialog.FileName, json);
+                            
+                            // Update UI
+                            sequencesList.Items[selectedIndex] = sequence.Name;
+                            AddLogMessage($"Sequence '{sequence.Name}' saved successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error saving sequence: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            AddLogMessage($"Error saving sequence: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a sequence to save.", "No Sequence Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            int selectedIndex = sequencesList.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < macroSequences.Count)
+            {
+                MacroSequence sequence = macroSequences[selectedIndex];
+                
+                // Confirm deletion
+                DialogResult result = MessageBox.Show(
+                    $"Are you sure you want to delete the sequence '{sequence.Name}'?",
+                    "Confirm Deletion",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+                
+                if (result == DialogResult.Yes)
+                {
+                    // Check if there's a file to delete
+                    string sequencesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sequences");
+                    string fileName = Path.Combine(sequencesDir, SanitizeFileName(sequence.Name) + ".json");
+                    
+                    // Remove from list
+                    macroSequences.RemoveAt(selectedIndex);
+                    sequencesList.Items.RemoveAt(selectedIndex);
+                    
+                    // Delete file if it exists
+                    if (File.Exists(fileName))
+                    {
+                        try
+                        {
+                            File.Delete(fileName);
+                            AddLogMessage($"Sequence file '{Path.GetFileName(fileName)}' deleted.");
+                        }
+                        catch (Exception ex)
+                        {
+                            AddLogMessage($"Error deleting sequence file: {ex.Message}");
+                        }
+                    }
+                    
+                    AddLogMessage($"Sequence '{sequence.Name}' deleted.");
+                    
+                    // Select another item if available
+                    if (sequencesList.Items.Count > 0)
+                    {
+                        sequencesList.SelectedIndex = Math.Min(selectedIndex, sequencesList.Items.Count - 1);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a sequence to delete.", "No Sequence Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        
+        private string SanitizeFileName(string fileName)
+        {
+            // Remove invalid characters from file name
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            return string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
     }
 }

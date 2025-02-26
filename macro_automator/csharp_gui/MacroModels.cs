@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace MacroAutomatorGUI
 {
@@ -147,15 +148,82 @@ namespace MacroAutomatorGUI
             Thread.Sleep(20);
         }
 
-        public static void SimulateKeyPress(string key)
+        public static void SimulateKeyPress(string keyCombo)
         {
-            // Convert key string to virtual key code
-            byte vk = GetVirtualKeyCode(key);
+            // Parse key combination (e.g., "ctrl+shift+p")
+            string[] keys = keyCombo.ToLower().Split('+');
             
-            // Send key down and up events
-            keybd_event(vk, 0, 0, 0);
-            Thread.Sleep(10); // Small delay between down and up
-            keybd_event(vk, 0, KEYEVENTF_KEYUP, 0);
+            List<byte> modifierKeys = new List<byte>();
+            byte mainKey = 0;
+            
+            foreach (string key in keys)
+            {
+                string trimmedKey = key.Trim();
+                
+                // Check if it's a modifier key
+                if (trimmedKey == "ctrl" || trimmedKey == "control")
+                {
+                    modifierKeys.Add(0x11); // VK_CONTROL
+                }
+                else if (trimmedKey == "alt")
+                {
+                    modifierKeys.Add(0x12); // VK_MENU
+                }
+                else if (trimmedKey == "shift")
+                {
+                    modifierKeys.Add(0x10); // VK_SHIFT
+                }
+                else if (trimmedKey == "win" || trimmedKey == "windows")
+                {
+                    modifierKeys.Add(0x5B); // VK_LWIN
+                }
+                else
+                {
+                    // This is the main key
+                    mainKey = GetVirtualKeyCode(trimmedKey);
+                }
+            }
+            
+            try
+            {
+                // Press all modifier keys
+                foreach (byte modKey in modifierKeys)
+                {
+                    keybd_event(modKey, 0, 0, 0);
+                    Thread.Sleep(10);
+                }
+                
+                // Press and release the main key
+                if (mainKey != 0)
+                {
+                    keybd_event(mainKey, 0, 0, 0);
+                    Thread.Sleep(10);
+                    keybd_event(mainKey, 0, KEYEVENTF_KEYUP, 0);
+                    Thread.Sleep(10);
+                }
+                
+                // Release all modifier keys in reverse order
+                for (int i = modifierKeys.Count - 1; i >= 0; i--)
+                {
+                    keybd_event(modifierKeys[i], 0, KEYEVENTF_KEYUP, 0);
+                    Thread.Sleep(10);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error simulating key press: {ex.Message}");
+                
+                // Ensure all keys are released in case of error
+                if (mainKey != 0)
+                {
+                    keybd_event(mainKey, 0, KEYEVENTF_KEYUP, 0);
+                }
+                
+                foreach (byte modKey in modifierKeys)
+                {
+                    keybd_event(modKey, 0, KEYEVENTF_KEYUP, 0);
+                }
+            }
         }
 
         public static void SimulateTextTyping(string text)
@@ -365,10 +433,14 @@ namespace MacroAutomatorGUI
         public string Description { get; set; } = string.Empty;
         public List<MacroAction> Actions { get; set; } = new List<MacroAction>();
         public double IterationDelay { get; set; } = 1.0;
+        
+        [JsonIgnore]
         public bool IsRecording { get; private set; } = false;
         
         // Window attachment properties
+        [JsonIgnore]
         public IntPtr AttachedWindowHandle { get; set; } = IntPtr.Zero;
+        
         public string AttachedWindowTitle { get; set; } = string.Empty;
 
         public MacroSequence()
@@ -465,7 +537,24 @@ namespace MacroAutomatorGUI
             return sb.ToString();
         }
 
-        // Factory methods for creating different types of actions
+        /// <summary>
+        /// Creates a key press action. Supports single keys or key combinations.
+        /// For combinations, use the format "ctrl+shift+p" or "alt+f4".
+        /// </summary>
+        /// <param name="key">Single key or key combination (e.g., "enter", "ctrl+c", "alt+shift+f4")</param>
+        /// <returns>A MacroAction for pressing the specified key or key combination</returns>
+        public static MacroAction CreateKeyPress(string key)
+        {
+            return new MacroAction
+            {
+                Type = ActionType.KeyPress,
+                Parameters = new Dictionary<string, object>
+                {
+                    { "key", key }
+                }
+            };
+        }
+
         public static MacroAction CreateMouseClick(int x, int y, string button = "left")
         {
             return new MacroAction
@@ -489,18 +578,6 @@ namespace MacroAutomatorGUI
                 {
                     { "x", x },
                     { "y", y }
-                }
-            };
-        }
-
-        public static MacroAction CreateKeyPress(string key)
-        {
-            return new MacroAction
-            {
-                Type = ActionType.KeyPress,
-                Parameters = new Dictionary<string, object>
-                {
-                    { "key", key }
                 }
             };
         }
@@ -647,6 +724,9 @@ namespace MacroAutomatorGUI
         private const int WH_MOUSE_LL = 14;
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
+        private const int WM_KEYUP = 0x0101;
+        private const int WM_SYSKEYDOWN = 0x0104;
+        private const int WM_SYSKEYUP = 0x0105;
         private const int WM_LBUTTONDOWN = 0x0201;
         private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_MOUSEMOVE = 0x0200;
@@ -655,6 +735,17 @@ namespace MacroAutomatorGUI
         private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
         private HookProc mouseProc;
         private HookProc keyboardProc;
+
+        // Track modifier key states
+        private bool ctrlDown = false;
+        private bool shiftDown = false;
+        private bool altDown = false;
+        private bool winDown = false;
+        
+        // Pending key combination
+        private List<string> currentKeyCombo = new List<string>();
+        private DateTime lastKeyDown = DateTime.MinValue;
+        private bool processingCombo = false;
 
         public InputRecorder(MacroSequence sequence)
         {
@@ -742,20 +833,211 @@ namespace MacroAutomatorGUI
 
         private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && isRecording && wParam.ToInt32() == WM_KEYDOWN)
+            if (nCode >= 0 && isRecording)
             {
-                // Add delay action based on time since last action
-                AddDelayIfNeeded();
-
                 // Get key information
                 KBDLLHOOKSTRUCT hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
                 Keys key = (Keys)hookStruct.vkCode;
+                int wParamInt = wParam.ToInt32();
                 
-                // Record key press
-                sequence.AddRecordedAction(MacroAction.CreateKeyPress(key.ToString().ToLower()));
-                // lastActionTime is now updated in AddDelayIfNeeded
+                // Handle key down events
+                if (wParamInt == WM_KEYDOWN || wParamInt == WM_SYSKEYDOWN)
+                {
+                    // Track modifier keys
+                    if (key == Keys.ControlKey || key == Keys.LControlKey || key == Keys.RControlKey)
+                    {
+                        ctrlDown = true;
+                        if (!processingCombo)
+                        {
+                            processingCombo = true;
+                            currentKeyCombo.Clear();
+                            currentKeyCombo.Add("ctrl");
+                            lastKeyDown = DateTime.Now;
+                        }
+                    }
+                    else if (key == Keys.ShiftKey || key == Keys.LShiftKey || key == Keys.RShiftKey)
+                    {
+                        shiftDown = true;
+                        if (!processingCombo)
+                        {
+                            processingCombo = true;
+                            currentKeyCombo.Clear();
+                            currentKeyCombo.Add("shift");
+                            lastKeyDown = DateTime.Now;
+                        }
+                        else if (!currentKeyCombo.Contains("shift"))
+                        {
+                            currentKeyCombo.Add("shift");
+                        }
+                    }
+                    else if (key == Keys.Menu || key == Keys.LMenu || key == Keys.RMenu)
+                    {
+                        altDown = true;
+                        if (!processingCombo)
+                        {
+                            processingCombo = true;
+                            currentKeyCombo.Clear();
+                            currentKeyCombo.Add("alt");
+                            lastKeyDown = DateTime.Now;
+                        }
+                        else if (!currentKeyCombo.Contains("alt"))
+                        {
+                            currentKeyCombo.Add("alt");
+                        }
+                    }
+                    else if (key == Keys.LWin || key == Keys.RWin)
+                    {
+                        winDown = true;
+                        if (!processingCombo)
+                        {
+                            processingCombo = true;
+                            currentKeyCombo.Clear();
+                            currentKeyCombo.Add("win");
+                            lastKeyDown = DateTime.Now;
+                        }
+                        else if (!currentKeyCombo.Contains("win"))
+                        {
+                            currentKeyCombo.Add("win");
+                        }
+                    }
+                    else
+                    {
+                        // Non-modifier key
+                        // Add delay action based on time since last action (only if not part of a combo)
+                        if (!processingCombo)
+                        {
+                            AddDelayIfNeeded();
+                            
+                            // Simple key press (no modifiers)
+                            sequence.AddRecordedAction(MacroAction.CreateKeyPress(key.ToString().ToLower()));
+                        }
+                        else
+                        {
+                            // Part of a key combination
+                            string keyName = key.ToString().ToLower();
+                            
+                            // Add the non-modifier key to the combination
+                            if (!currentKeyCombo.Contains(keyName))
+                            {
+                                currentKeyCombo.Add(keyName);
+                            }
+                            
+                            // If it's been more than 50ms since we started tracking this combo,
+                            // or if this is a key that likely completes a combo, record it
+                            if ((DateTime.Now - lastKeyDown).TotalMilliseconds > 50 || 
+                                IsLikelyComboCompletionKey(key))
+                            {
+                                AddDelayIfNeeded();
+                                
+                                // Create the key combination string (e.g., "ctrl+shift+p")
+                                string keyCombo = string.Join("+", currentKeyCombo);
+                                
+                                // Record the key combination
+                                sequence.AddRecordedAction(MacroAction.CreateKeyPress(keyCombo));
+                                
+                                // Reset combo tracking
+                                processingCombo = false;
+                                currentKeyCombo.Clear();
+                            }
+                        }
+                    }
+                }
+                // Handle key up events
+                else if (wParamInt == WM_KEYUP || wParamInt == WM_SYSKEYUP)
+                {
+                    // Update modifier key states
+                    if (key == Keys.ControlKey || key == Keys.LControlKey || key == Keys.RControlKey)
+                    {
+                        ctrlDown = false;
+                    }
+                    else if (key == Keys.ShiftKey || key == Keys.LShiftKey || key == Keys.RShiftKey)
+                    {
+                        shiftDown = false;
+                    }
+                    else if (key == Keys.Menu || key == Keys.LMenu || key == Keys.RMenu)
+                    {
+                        altDown = false;
+                    }
+                    else if (key == Keys.LWin || key == Keys.RWin)
+                    {
+                        winDown = false;
+                    }
+                    
+                    // If all modifier keys are up and we were processing a combo but didn't complete it,
+                    // record whatever we have so far
+                    if (processingCombo && !ctrlDown && !shiftDown && !altDown && !winDown && currentKeyCombo.Count > 0)
+                    {
+                        // If the combo only has modifier keys, don't record it
+                        if (currentKeyCombo.Count > 1 || 
+                            (!currentKeyCombo.Contains("ctrl") && 
+                             !currentKeyCombo.Contains("shift") && 
+                             !currentKeyCombo.Contains("alt") && 
+                             !currentKeyCombo.Contains("win")))
+                        {
+                            AddDelayIfNeeded();
+                            
+                            // Create the key combination string
+                            string keyCombo = string.Join("+", currentKeyCombo);
+                            
+                            // Record the key combination
+                            sequence.AddRecordedAction(MacroAction.CreateKeyPress(keyCombo));
+                        }
+                        
+                        // Reset combo tracking
+                        processingCombo = false;
+                        currentKeyCombo.Clear();
+                    }
+                }
             }
             return CallNextHookEx(keyboardHook, nCode, wParam, lParam);
+        }
+        
+        private bool IsLikelyComboCompletionKey(Keys key)
+        {
+            // Keys that are commonly used to complete hotkey combinations
+            switch (key)
+            {
+                case Keys.A: // Ctrl+A (Select All)
+                case Keys.C: // Ctrl+C (Copy)
+                case Keys.V: // Ctrl+V (Paste)
+                case Keys.X: // Ctrl+X (Cut)
+                case Keys.Z: // Ctrl+Z (Undo)
+                case Keys.Y: // Ctrl+Y (Redo)
+                case Keys.S: // Ctrl+S (Save)
+                case Keys.O: // Ctrl+O (Open)
+                case Keys.P: // Ctrl+P (Print)
+                case Keys.F: // Ctrl+F (Find)
+                case Keys.N: // Ctrl+N (New)
+                case Keys.W: // Ctrl+W (Close)
+                case Keys.T: // Ctrl+T (New Tab)
+                case Keys.Tab: // Ctrl+Tab, Alt+Tab
+                case Keys.Escape:
+                case Keys.Delete:
+                case Keys.Home:
+                case Keys.End:
+                case Keys.PageUp:
+                case Keys.PageDown:
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Enter:
+                case Keys.F1:
+                case Keys.F2:
+                case Keys.F3:
+                case Keys.F4:
+                case Keys.F5:
+                case Keys.F6:
+                case Keys.F7:
+                case Keys.F8:
+                case Keys.F9:
+                case Keys.F10:
+                case Keys.F11:
+                case Keys.F12:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private void AddDelayIfNeeded()
