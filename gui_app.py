@@ -22,7 +22,7 @@ class MacroGUI(ctk.CTk):
 
         # Configure window
         self.title("Macro Control Panel")
-        self.geometry("600x600")
+        self.geometry("700x770")  # Increased width and height
         
         # Configure grid layout
         self.grid_columnconfigure(0, weight=1)
@@ -49,26 +49,27 @@ class MacroGUI(ctk.CTk):
         )
         self.type_emails_button.grid(row=1, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
-        self.enter_codes_button = ctk.CTkButton(
-            self.main_frame,
-            text="Enter Verification Codes in LD PlayerWindows",
-            command=self.enter_codes
-        )
-        self.enter_codes_button.grid(row=2, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
-
+        # Move Outlook buttons before Enter Verification button
         self.scan_outlook_button = ctk.CTkButton(
             self.main_frame,
             text="Scan Outlook for Verification Codes",
             command=self.scan_outlook
         )
-        self.scan_outlook_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
+        self.scan_outlook_button.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
         self.force_sync_button = ctk.CTkButton(
             self.main_frame,
             text="Force Outlook Sync",
             command=self.force_sync
         )
-        self.force_sync_button.grid(row=3, column=1, padx=20, pady=10, sticky="ew")
+        self.force_sync_button.grid(row=2, column=1, padx=20, pady=10, sticky="ew")
+
+        self.enter_codes_button = ctk.CTkButton(
+            self.main_frame,
+            text="Enter Verification Codes in LDPlayer Windows",
+            command=self.enter_codes
+        )
+        self.enter_codes_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew", columnspan=2)
 
         self.screenshot_button = ctk.CTkButton(
             self.main_frame,
@@ -101,7 +102,7 @@ class MacroGUI(ctk.CTk):
         self.log_frame.grid_columnconfigure(0, weight=1)
         self.log_frame.grid_rowconfigure(0, weight=1)
 
-        self.log_text = ctk.CTkTextbox(self.log_frame, height=200)
+        self.log_text = ctk.CTkTextbox(self.log_frame, height=300)  # Increased height
         self.log_text.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Message queue for thread-safe logging
