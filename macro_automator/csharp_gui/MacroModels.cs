@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
@@ -658,6 +659,23 @@ namespace MacroAutomatorGUI
 
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+        
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
+        
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        // Delegate for EnumWindows callback
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -672,6 +690,46 @@ namespace MacroAutomatorGUI
         {
             return FindWindow(null, title);
         }
+        
+        public static IntPtr FindWindowByPartialTitle(string partialTitle)
+        {
+            IntPtr foundWindow = IntPtr.Zero;
+            
+            // First try exact match
+            foundWindow = FindWindowByTitle(partialTitle);
+            if (foundWindow != IntPtr.Zero)
+            {
+                return foundWindow;
+            }
+            
+            // If exact match fails, try partial match
+            EnumWindows(delegate(IntPtr hWnd, IntPtr lParam)
+            {
+                // Only check visible windows
+                if (!IsWindowVisible(hWnd))
+                    return true;
+                
+                // Get the window title
+                int length = GetWindowTextLength(hWnd);
+                if (length == 0)
+                    return true;
+                
+                StringBuilder builder = new StringBuilder(length + 1);
+                GetWindowText(hWnd, builder, builder.Capacity);
+                string windowTitle = builder.ToString();
+                
+                // Check if the window title contains our search string (case insensitive)
+                if (windowTitle.IndexOf(partialTitle, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    foundWindow = hWnd;
+                    return false; // Stop enumeration
+                }
+                
+                return true; // Continue enumeration
+            }, IntPtr.Zero);
+            
+            return foundWindow;
+        }
 
         public static bool ActivateWindow(IntPtr handle)
         {
@@ -680,7 +738,8 @@ namespace MacroAutomatorGUI
 
         public static bool ActivateWindowByTitle(string title)
         {
-            IntPtr handle = FindWindowByTitle(title);
+            // Try to find the window by exact or partial title
+            IntPtr handle = FindWindowByPartialTitle(title);
             if (handle != IntPtr.Zero)
             {
                 return ActivateWindow(handle);

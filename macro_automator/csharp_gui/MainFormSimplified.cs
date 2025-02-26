@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using YamlDotNet.Serialization;
 
 namespace MacroAutomatorGUI
 {
@@ -313,12 +314,21 @@ namespace MacroAutomatorGUI
                 AddLogMessage("Created sequences directory");
             }
             
+            // First add example sequences
+            AddLogMessage("Adding example sequences.");
+            AddExampleSequences();
+            
+            // Keep track of example sequence names to avoid duplicates
+            HashSet<string> existingSequenceNames = new HashSet<string>(
+                macroSequences.Select(seq => seq.Name)
+            );
+            
             // Load sequences from files
-            bool loadedAnySequences = false;
             try
             {
-                string[] sequenceFiles = Directory.GetFiles(sequencesDir, "*.json");
-                foreach (string file in sequenceFiles)
+                // Load JSON files
+                string[] jsonFiles = Directory.GetFiles(sequencesDir, "*.json");
+                foreach (string file in jsonFiles)
                 {
                     try
                     {
@@ -326,27 +336,61 @@ namespace MacroAutomatorGUI
                         MacroSequence sequence = JsonConvert.DeserializeObject<MacroSequence>(json);
                         if (sequence != null)
                         {
-                            macroSequences.Add(sequence);
-                            loadedAnySequences = true;
-                            AddLogMessage($"Loaded sequence: {sequence.Name}");
+                            // Only add if not a duplicate of an example sequence
+                            if (!existingSequenceNames.Contains(sequence.Name))
+                            {
+                                macroSequences.Add(sequence);
+                                existingSequenceNames.Add(sequence.Name);
+                                AddLogMessage($"Loaded JSON sequence: {sequence.Name}");
+                            }
+                            else
+                            {
+                                AddLogMessage($"Skipped duplicate sequence: {sequence.Name}");
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        AddLogMessage($"Error loading sequence file {Path.GetFileName(file)}: {ex.Message}");
+                        AddLogMessage($"Error loading JSON sequence file {Path.GetFileName(file)}: {ex.Message}");
+                    }
+                }
+                
+                // Load YAML files
+                string[] yamlFiles = Directory.GetFiles(sequencesDir, "*.yaml");
+                string[] ymlFiles = Directory.GetFiles(sequencesDir, "*.yml");
+                string[] allYamlFiles = yamlFiles.Concat(ymlFiles).ToArray();
+                
+                foreach (string file in allYamlFiles)
+                {
+                    try
+                    {
+                        // Load YAML file and convert to MacroSequence objects
+                        var yamlSequences = LoadSequencesFromYamlFile(file);
+                        
+                        foreach (var sequence in yamlSequences)
+                        {
+                            // Only add if not a duplicate of an example sequence
+                            if (!existingSequenceNames.Contains(sequence.Name))
+                            {
+                                macroSequences.Add(sequence);
+                                existingSequenceNames.Add(sequence.Name);
+                                AddLogMessage($"Loaded YAML sequence: {sequence.Name}");
+                            }
+                            else
+                            {
+                                AddLogMessage($"Skipped duplicate sequence: {sequence.Name}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AddLogMessage($"Error loading YAML sequence file {Path.GetFileName(file)}: {ex.Message}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 AddLogMessage($"Error accessing sequences directory: {ex.Message}");
-            }
-            
-            // Add example sequences if no sequences were loaded
-            if (!loadedAnySequences)
-            {
-                AddLogMessage("No saved sequences found. Adding example sequences.");
-                AddExampleSequences();
             }
             
             // Update the list
@@ -364,6 +408,154 @@ namespace MacroAutomatorGUI
             AddLogMessage($"Loaded {macroSequences.Count} sequences");
         }
         
+        private List<MacroSequence> LoadSequencesFromYamlFile(string filePath)
+        {
+            List<MacroSequence> sequences = new List<MacroSequence>();
+            
+            try
+            {
+                // Load the YAML content
+                var yamlContent = YamlHelper.LoadFromYaml<Dictionary<string, object>>(filePath);
+                
+                // Check if the YAML has the expected structure
+                if (yamlContent.ContainsKey("macros") && yamlContent["macros"] is Dictionary<object, object> macrosDict)
+                {
+                    // Process each macro in the YAML file
+                    foreach (var macroEntry in macrosDict)
+                    {
+                        string sequenceName = macroEntry.Key.ToString();
+                        var macroData = macroEntry.Value as Dictionary<object, object>;
+                        
+                        if (macroData != null && macroData.ContainsKey("actions"))
+                        {
+                            // Create a new sequence
+                            MacroSequence sequence = new MacroSequence
+                            {
+                                Name = sequenceName,
+                                Description = $"Imported from {Path.GetFileName(filePath)}",
+                                Actions = new List<MacroAction>()
+                            };
+                            
+                            // Set iteration delay if present
+                            if (macroData.ContainsKey("iteration_delay") && macroData["iteration_delay"] is double iterDelay)
+                            {
+                                sequence.IterationDelay = iterDelay;
+                            }
+                            
+                            // Process actions
+                            var actionsList = macroData["actions"] as List<object>;
+                            if (actionsList != null)
+                            {
+                                foreach (var actionObj in actionsList)
+                                {
+                                    var actionDict = actionObj as Dictionary<object, object>;
+                                    if (actionDict != null && actionDict.ContainsKey("type"))
+                                    {
+                                        string actionType = actionDict["type"].ToString().ToLower();
+                                        MacroAction action = ConvertYamlActionToMacroAction(actionType, actionDict);
+                                        if (action != null)
+                                        {
+                                            sequence.Actions.Add(action);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            sequences.Add(sequence);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLogMessage($"Error parsing YAML file {Path.GetFileName(filePath)}: {ex.Message}");
+            }
+            
+            return sequences;
+        }
+        
+        private MacroAction ConvertYamlActionToMacroAction(string yamlActionType, Dictionary<object, object> actionData)
+        {
+            // Convert YAML action type to C# ActionType
+            ActionType actionType;
+            switch (yamlActionType)
+            {
+                case "mouse_click":
+                    actionType = ActionType.MouseClick;
+                    break;
+                case "mouse_move":
+                    actionType = ActionType.MouseMove;
+                    break;
+                case "key_press":
+                    actionType = ActionType.KeyPress;
+                    break;
+                case "type_text":
+                    actionType = ActionType.TypeText;
+                    break;
+                case "wait":
+                    actionType = ActionType.Wait;
+                    break;
+                case "sleep":
+                    actionType = ActionType.Sleep;
+                    break;
+                case "attach_to_window":
+                case "find_window":
+                    actionType = ActionType.AttachToWindow;
+                    break;
+                default:
+                    AddLogMessage($"Unknown action type in YAML: {yamlActionType}");
+                    return null;
+            }
+            
+            // Create action with parameters
+            MacroAction action = new MacroAction
+            {
+                Type = actionType,
+                Parameters = new Dictionary<string, object>()
+            };
+            
+            // Convert parameters based on action type
+            foreach (var param in actionData)
+            {
+                string key = param.Key.ToString();
+                if (key != "type") // Skip the type parameter as we've already processed it
+                {
+                    // Handle specific parameter mappings
+                    string paramName = key;
+                    
+                    // Map YAML parameter names to C# parameter names
+                    switch (key)
+                    {
+                        case "window_name":
+                            if (actionType == ActionType.AttachToWindow)
+                                paramName = "window_name";
+                            break;
+                        case "text":
+                            if (actionType == ActionType.TypeText)
+                                paramName = "text";
+                            break;
+                        case "seconds":
+                            if (actionType == ActionType.Wait)
+                                paramName = "seconds";
+                            else if (actionType == ActionType.Sleep)
+                                paramName = "milliseconds";
+                            break;
+                    }
+                    
+                    // Convert value if needed
+                    object value = param.Value;
+                    if (paramName == "milliseconds" && key == "seconds" && value is double seconds)
+                    {
+                        value = (int)(seconds * 1000); // Convert seconds to milliseconds
+                    }
+                    
+                    action.Parameters[paramName] = value;
+                }
+            }
+            
+            return action;
+        }
+
         private void AddExampleSequences()
         {
             // Add example sequences
@@ -769,7 +961,7 @@ namespace MacroAutomatorGUI
                 }
                 
                 openDialog.InitialDirectory = sequencesDir;
-                openDialog.Filter = "JSON Files (*.json)|*.json";
+                openDialog.Filter = "JSON Files (*.json)|*.json|YAML Files (*.yaml;*.yml)|*.yaml;*.yml";
                 openDialog.DefaultExt = "json";
                 openDialog.Multiselect = false;
                 
@@ -777,42 +969,79 @@ namespace MacroAutomatorGUI
                 {
                     try
                     {
-                        string json = File.ReadAllText(openDialog.FileName);
-                        MacroSequence sequence = JsonConvert.DeserializeObject<MacroSequence>(json);
-                        
-                        if (sequence != null)
+                        if (openDialog.FileName.EndsWith(".json"))
                         {
-                            // Check if a sequence with the same name already exists
-                            int existingIndex = -1;
-                            for (int i = 0; i < macroSequences.Count; i++)
-                            {
-                                if (macroSequences[i].Name == sequence.Name)
-                                {
-                                    existingIndex = i;
-                                    break;
-                                }
-                            }
+                            string json = File.ReadAllText(openDialog.FileName);
+                            MacroSequence sequence = JsonConvert.DeserializeObject<MacroSequence>(json);
                             
-                            if (existingIndex >= 0)
+                            if (sequence != null)
                             {
-                                // Replace existing sequence
-                                macroSequences[existingIndex] = sequence;
-                                sequencesList.Items[existingIndex] = sequence.Name;
-                                sequencesList.SelectedIndex = existingIndex;
-                                AddLogMessage($"Updated existing sequence: {sequence.Name}");
+                                // Check if a sequence with the same name already exists
+                                int existingIndex = -1;
+                                for (int i = 0; i < macroSequences.Count; i++)
+                                {
+                                    if (macroSequences[i].Name == sequence.Name)
+                                    {
+                                        existingIndex = i;
+                                        break;
+                                    }
+                                }
+                                
+                                if (existingIndex >= 0)
+                                {
+                                    // Replace existing sequence
+                                    macroSequences[existingIndex] = sequence;
+                                    sequencesList.Items[existingIndex] = sequence.Name;
+                                    sequencesList.SelectedIndex = existingIndex;
+                                    AddLogMessage($"Updated existing sequence: {sequence.Name}");
+                                }
+                                else
+                                {
+                                    // Add new sequence
+                                    macroSequences.Add(sequence);
+                                    sequencesList.Items.Add(sequence.Name);
+                                    sequencesList.SelectedIndex = macroSequences.Count - 1;
+                                    AddLogMessage($"Loaded sequence: {sequence.Name}");
+                                }
                             }
                             else
                             {
-                                // Add new sequence
-                                macroSequences.Add(sequence);
-                                sequencesList.Items.Add(sequence.Name);
-                                sequencesList.SelectedIndex = macroSequences.Count - 1;
-                                AddLogMessage($"Loaded sequence: {sequence.Name}");
+                                MessageBox.Show("Failed to load sequence. The file may be corrupted.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        else
+                        else if (openDialog.FileName.EndsWith(".yaml") || openDialog.FileName.EndsWith(".yml"))
                         {
-                            MessageBox.Show("Failed to load sequence. The file may be corrupted.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            var yamlSequences = LoadSequencesFromYamlFile(openDialog.FileName);
+                            foreach (var sequence in yamlSequences)
+                            {
+                                // Check if a sequence with the same name already exists
+                                int existingIndex = -1;
+                                for (int i = 0; i < macroSequences.Count; i++)
+                                {
+                                    if (macroSequences[i].Name == sequence.Name)
+                                    {
+                                        existingIndex = i;
+                                        break;
+                                    }
+                                }
+                                
+                                if (existingIndex >= 0)
+                                {
+                                    // Replace existing sequence
+                                    macroSequences[existingIndex] = sequence;
+                                    sequencesList.Items[existingIndex] = sequence.Name;
+                                    sequencesList.SelectedIndex = existingIndex;
+                                    AddLogMessage($"Updated existing sequence: {sequence.Name}");
+                                }
+                                else
+                                {
+                                    // Add new sequence
+                                    macroSequences.Add(sequence);
+                                    sequencesList.Items.Add(sequence.Name);
+                                    sequencesList.SelectedIndex = macroSequences.Count - 1;
+                                    AddLogMessage($"Loaded sequence: {sequence.Name}");
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)
