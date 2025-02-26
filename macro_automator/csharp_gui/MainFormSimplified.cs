@@ -442,6 +442,12 @@ namespace MacroAutomatorGUI
                                 sequence.IterationDelay = iterDelay;
                             }
                             
+                            // Set loop count if present
+                            if (macroData.ContainsKey("loop_count") && macroData["loop_count"] is int loopCount)
+                            {
+                                sequence.LoopCount = loopCount;
+                            }
+                            
                             // Process actions
                             var actionsList = macroData["actions"] as List<object>;
                             if (actionsList != null)
@@ -663,7 +669,18 @@ namespace MacroAutomatorGUI
             }
 
             MacroSequence sequence = macroSequences[sequencesList.SelectedIndex];
-            int iterations = loopForeverCheckbox.Checked ? 0 : (int)iterationsInput.Value;
+            
+            // Update the sequence's loop count based on UI settings
+            if (loopForeverCheckbox.Checked)
+            {
+                sequence.LoopCount = 0; // 0 means infinite
+            }
+            else
+            {
+                sequence.LoopCount = (int)iterationsInput.Value;
+            }
+            
+            int iterations = sequence.LoopCount;
 
             AddLogMessage($"Starting sequence: {sequence.Name}");
             AddLogMessage($"Iterations: {(iterations == 0 ? "Infinite" : iterations.ToString())}");
@@ -961,8 +978,8 @@ namespace MacroAutomatorGUI
                 }
                 
                 openDialog.InitialDirectory = sequencesDir;
-                openDialog.Filter = "JSON Files (*.json)|*.json|YAML Files (*.yaml;*.yml)|*.yaml;*.yml";
-                openDialog.DefaultExt = "json";
+                openDialog.Filter = "YAML Files (*.yaml;*.yml)|*.yaml;*.yml|JSON Files (*.json)|*.json|All Files (*.*)|*.*";
+                openDialog.DefaultExt = "yaml";
                 openDialog.Multiselect = false;
                 
                 if (openDialog.ShowDialog() == DialogResult.OK)
@@ -1055,24 +1072,31 @@ namespace MacroAutomatorGUI
 
         private void SequencesList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Update UI based on selected sequence
-            int selectedIndex = sequencesList.SelectedIndex;
-            if (selectedIndex >= 0 && selectedIndex < macroSequences.Count)
+            if (sequencesList.SelectedIndex >= 0)
             {
-                MacroSequence sequence = macroSequences[selectedIndex];
-                AddLogMessage($"Selected sequence: {sequence.Name}");
+                MacroSequence selectedSequence = macroSequences[sequencesList.SelectedIndex];
                 
-                // Enable buttons for the selected sequence
+                // Update the iteration input and checkbox based on the sequence's loop count
+                if (selectedSequence.LoopCount == 0)
+                {
+                    loopForeverCheckbox.Checked = true;
+                    iterationsInput.Value = 1; // Default value when loop forever is checked
+                }
+                else
+                {
+                    loopForeverCheckbox.Checked = false;
+                    iterationsInput.Value = selectedSequence.LoopCount;
+                }
+                
                 startButton.Enabled = true;
-                saveButton.Enabled = true;
                 deleteButton.Enabled = true;
+                saveButton.Enabled = true;
             }
             else
             {
-                // Disable buttons if no sequence is selected
                 startButton.Enabled = false;
-                saveButton.Enabled = false;
                 deleteButton.Enabled = false;
+                saveButton.Enabled = false;
             }
         }
 
@@ -1120,7 +1144,16 @@ namespace MacroAutomatorGUI
             {
                 MacroSequence sequence = macroSequences[selectedIndex];
                 
-                // Show save dialog to allow user to rename the sequence
+                // Update the sequence's loop count based on UI settings before saving
+                if (loopForeverCheckbox.Checked)
+                {
+                    sequence.LoopCount = 0; // 0 means infinite
+                }
+                else
+                {
+                    sequence.LoopCount = (int)iterationsInput.Value;
+                }
+                
                 using (SaveFileDialog saveDialog = new SaveFileDialog())
                 {
                     string sequencesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sequences");
@@ -1130,8 +1163,8 @@ namespace MacroAutomatorGUI
                     }
                     
                     saveDialog.InitialDirectory = sequencesDir;
-                    saveDialog.Filter = "JSON Files (*.json)|*.json";
-                    saveDialog.DefaultExt = "json";
+                    saveDialog.Filter = "YAML Files (*.yaml)|*.yaml|JSON Files (*.json)|*.json|All Files (*.*)|*.*";
+                    saveDialog.DefaultExt = "yaml";
                     saveDialog.FileName = SanitizeFileName(sequence.Name);
                     
                     if (saveDialog.ShowDialog() == DialogResult.OK)
@@ -1142,9 +1175,27 @@ namespace MacroAutomatorGUI
                             string fileName = Path.GetFileNameWithoutExtension(saveDialog.FileName);
                             sequence.Name = fileName;
                             
-                            // Serialize and save
-                            string json = JsonConvert.SerializeObject(sequence, Formatting.Indented);
-                            File.WriteAllText(saveDialog.FileName, json);
+                            // Determine file format based on extension
+                            if (saveDialog.FileName.EndsWith(".json"))
+                            {
+                                // Save as JSON
+                                string json = JsonConvert.SerializeObject(sequence, Formatting.Indented);
+                                File.WriteAllText(saveDialog.FileName, json);
+                            }
+                            else if (saveDialog.FileName.EndsWith(".yaml") || saveDialog.FileName.EndsWith(".yml"))
+                            {
+                                // Save as YAML
+                                var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
+                                string yaml = serializer.Serialize(sequence);
+                                File.WriteAllText(saveDialog.FileName, yaml);
+                            }
+                            else
+                            {
+                                // Default to YAML if no recognized extension
+                                var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
+                                string yaml = serializer.Serialize(sequence);
+                                File.WriteAllText(saveDialog.FileName, yaml);
+                            }
                             
                             // Update UI
                             sequencesList.Items[selectedIndex] = sequence.Name;

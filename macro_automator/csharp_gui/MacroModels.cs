@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
@@ -26,6 +26,28 @@ namespace MacroAutomatorGUI
         // Constants for keybd_event
         public const int KEYEVENTF_EXTENDEDKEY = 0x0001;
         public const int KEYEVENTF_KEYUP = 0x0002;
+
+        // Windows API functions
+        [DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern short VkKeyScan(char ch);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr WindowFromPoint(Point point);
+        
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         // Structure for keyboard input
         [StructLayout(LayoutKind.Sequential)]
@@ -74,22 +96,6 @@ namespace MacroAutomatorGUI
             public short wParamL;
             public short wParamH;
         }
-
-        // Windows API functions
-        [DllImport("user32.dll")]
-        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
-
-        [DllImport("user32.dll")]
-        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-
-        [DllImport("user32.dll")]
-        public static extern bool SetCursorPos(int x, int y);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
-
-        [DllImport("user32.dll")]
-        public static extern short VkKeyScan(char ch);
 
         // Helper methods for input simulation
         public static void SimulateMouseClick(int x, int y, string button = "left")
@@ -434,6 +440,7 @@ namespace MacroAutomatorGUI
         public string Description { get; set; } = string.Empty;
         public List<MacroAction> Actions { get; set; } = new List<MacroAction>();
         public double IterationDelay { get; set; } = 1.0;
+        public int LoopCount { get; set; } = 1;
         
         [JsonIgnore]
         public bool IsRecording { get; private set; } = false;
@@ -660,6 +667,12 @@ namespace MacroAutomatorGUI
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
         
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, IntPtr windowTitle);
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
@@ -673,6 +686,12 @@ namespace MacroAutomatorGUI
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr WindowFromPoint(Point point);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         // Delegate for EnumWindows callback
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
@@ -792,6 +811,7 @@ namespace MacroAutomatorGUI
 
         // Hook callback delegate
         private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
         private HookProc mouseProc;
         private HookProc keyboardProc;
 
@@ -861,29 +881,57 @@ namespace MacroAutomatorGUI
                 // Get mouse coordinates
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
                 
-                if (wParam.ToInt32() == WM_LBUTTONDOWN)
+                // Check if this is a click on the Stop Recording button
+                bool isStopRecordingButtonClick = false;
+                
+                // If this is a click that might be on the Stop Recording button, we should ignore it
+                if (wParam.ToInt32() == WM_LBUTTONDOWN || wParam.ToInt32() == WM_RBUTTONDOWN)
                 {
-                    // Left mouse button click
-                    var clickAction = MacroAction.CreateMouseClick((int)hookStruct.pt.x, (int)hookStruct.pt.y);
-                    clickAction.Parameters["button"] = "left";
-                    sequence.AddRecordedAction(clickAction);
-                    // lastActionTime is now updated in AddDelayIfNeeded
-                }
-                else if (wParam.ToInt32() == WM_RBUTTONDOWN)
-                {
-                    // Right mouse button click
-                    var clickAction = MacroAction.CreateMouseClick((int)hookStruct.pt.x, (int)hookStruct.pt.y);
-                    clickAction.Parameters["button"] = "right";
-                    sequence.AddRecordedAction(clickAction);
-                    // lastActionTime is now updated in AddDelayIfNeeded
-                }
-                else if (wParam.ToInt32() == WM_MOUSEMOVE)
-                {
-                    // Mouse move - only record if significant movement (every 100ms)
-                    if ((DateTime.Now - lastActionTime).TotalMilliseconds > 100)
+                    // Get the control at the current mouse position
+                    Point mousePoint = new Point((int)hookStruct.pt.x, (int)hookStruct.pt.y);
+                    IntPtr hwnd = InputSimulator.WindowFromPoint(mousePoint);
+                    
+                    // If the click is on a button control, it might be the Stop Recording button
+                    // We'll ignore it to prevent recording the click that stops the recording
+                    if (hwnd != IntPtr.Zero)
                     {
-                        sequence.AddRecordedAction(MacroAction.CreateMouseMove((int)hookStruct.pt.x, (int)hookStruct.pt.y));
+                        StringBuilder className = new StringBuilder(256);
+                        InputSimulator.GetClassName(hwnd, className, className.Capacity);
+                        
+                        // Check if it's a button
+                        if (className.ToString().ToLower().Contains("button"))
+                        {
+                            isStopRecordingButtonClick = true;
+                        }
+                    }
+                }
+                
+                if (!isStopRecordingButtonClick)
+                {
+                    if (wParam.ToInt32() == WM_LBUTTONDOWN)
+                    {
+                        // Left mouse button click
+                        var clickAction = MacroAction.CreateMouseClick((int)hookStruct.pt.x, (int)hookStruct.pt.y);
+                        clickAction.Parameters["button"] = "left";
+                        sequence.AddRecordedAction(clickAction);
                         // lastActionTime is now updated in AddDelayIfNeeded
+                    }
+                    else if (wParam.ToInt32() == WM_RBUTTONDOWN)
+                    {
+                        // Right mouse button click
+                        var clickAction = MacroAction.CreateMouseClick((int)hookStruct.pt.x, (int)hookStruct.pt.y);
+                        clickAction.Parameters["button"] = "right";
+                        sequence.AddRecordedAction(clickAction);
+                        // lastActionTime is now updated in AddDelayIfNeeded
+                    }
+                    else if (wParam.ToInt32() == WM_MOUSEMOVE)
+                    {
+                        // Mouse move - only record if significant movement (every 100ms)
+                        if ((DateTime.Now - lastActionTime).TotalMilliseconds > 100)
+                        {
+                            sequence.AddRecordedAction(MacroAction.CreateMouseMove((int)hookStruct.pt.x, (int)hookStruct.pt.y));
+                            // lastActionTime is now updated in AddDelayIfNeeded
+                        }
                     }
                 }
             }
@@ -973,7 +1021,7 @@ namespace MacroAutomatorGUI
                         else
                         {
                             // Part of a key combination
-                            string keyName = key.ToString().ToLower();
+                            string keyName = GetProperKeyName(key);
                             
                             // Add the non-modifier key to the combination
                             if (!currentKeyCombo.Contains(keyName))
@@ -1049,6 +1097,27 @@ namespace MacroAutomatorGUI
                 }
             }
             return CallNextHookEx(keyboardHook, nCode, wParam, lParam);
+        }
+        
+        // Helper method to get proper key name for keyboard hook
+        private string GetProperKeyName(Keys key)
+        {
+            // Handle numeric keys (D0-D9)
+            if (key >= Keys.D0 && key <= Keys.D9)
+            {
+                // Convert D0-D9 to 0-9
+                return (key - Keys.D0).ToString();
+            }
+            
+            // Handle numeric keypad keys (NumPad0-NumPad9)
+            if (key >= Keys.NumPad0 && key <= Keys.NumPad9)
+            {
+                // Convert NumPad0-NumPad9 to 0-9
+                return (key - Keys.NumPad0).ToString();
+            }
+            
+            // For all other keys, use the standard key name in lowercase
+            return key.ToString().ToLower();
         }
         
         private bool IsLikelyComboCompletionKey(Keys key)
