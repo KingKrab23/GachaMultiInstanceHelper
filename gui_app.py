@@ -41,7 +41,7 @@ class MacroGUI(ctk.CTk):
 
         # Define hotkey mappings
         self.hotkey_mappings = {
-            "rename_windows": "1",
+            "rename_windows": "Ctrl+Alt+1",
             "type_emails": "Ctrl+Alt+2",
             "scan_outlook": "Ctrl+Alt+3",
             "force_sync": "Ctrl+Alt+4",
@@ -144,7 +144,7 @@ class MacroGUI(ctk.CTk):
             def on_key_event(e):
                 """Handle key events"""
                 nonlocal ctrl_pressed, alt_pressed
-                print(e)
+                #print(e)
                 
                 # Normalize key name
                 key_name = e.name
@@ -197,7 +197,7 @@ class MacroGUI(ctk.CTk):
             self.log("Global hotkeys registered with modifier state tracking.")
             
             return True
-        except Exception as e:
+        except Exception as e: 
             print(f"Error setting up keyboard hook: {str(e)}")
             return False
 
