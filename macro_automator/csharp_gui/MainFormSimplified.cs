@@ -288,6 +288,7 @@ namespace MacroAutomatorGUI
             this.KeyPreview = true;
             this.KeyDown += (sender, e) =>
             {
+                // Standard function key shortcuts
                 if (e.KeyCode == Keys.F5)
                 {
                     StartButton_Click(sender, e);
@@ -529,18 +530,25 @@ namespace MacroAutomatorGUI
             switch (yamlActionType)
             {
                 case "mouse_click":
+                case "mouseclick":
                     actionType = ActionType.MouseClick;
                     break;
                 case "mouse_move":
+                case "mousemove":
                     actionType = ActionType.MouseMove;
                     break;
                 case "key_press":
+                case "keypress":
+                case "key":
                     actionType = ActionType.KeyPress;
                     break;
                 case "type_text":
+                case "typetext":
+                case "type":
                     actionType = ActionType.TypeText;
                     break;
                 case "wait":
+                case "delay":
                     actionType = ActionType.Wait;
                     break;
                 case "sleep":
@@ -548,6 +556,7 @@ namespace MacroAutomatorGUI
                     break;
                 case "attach_to_window":
                 case "find_window":
+                case "window":
                     actionType = ActionType.AttachToWindow;
                     break;
                 default:
@@ -565,24 +574,50 @@ namespace MacroAutomatorGUI
             // Convert parameters based on action type
             foreach (var param in actionData)
             {
-                string key = param.Key.ToString();
+                string key = param.Key.ToString().ToLower();
                 if (key != "type") // Skip the type parameter as we've already processed it
                 {
                     // Handle specific parameter mappings
                     string paramName = key;
+                    object value = param.Value;
                     
+                    // Special handling for key press actions
+                    if (actionType == ActionType.KeyPress)
+                    {
+                        // Check for various key parameter names
+                        if (key == "key" || key == "keys" || key == "keycombo" || key == "key_combo")
+                        {
+                            paramName = "key";
+                            
+                            // If the value is a list, convert it to a key combo string
+                            if (value is List<object> keysList)
+                            {
+                                value = string.Join("+", keysList.Select(k => k.ToString().ToLower()));
+                            }
+                            else if (value is string keyStr)
+                            {
+                                // Ensure key names are lowercase for consistency
+                                value = keyStr.ToLower();
+                            }
+                        }
+                    }
                     // Map YAML parameter names to C# parameter names
-                    switch (key)
+                    else switch (key)
                     {
                         case "window_name":
+                        case "windowname":
+                        case "window":
                             if (actionType == ActionType.AttachToWindow)
                                 paramName = "window_name";
                             break;
                         case "text":
+                        case "string":
+                        case "input":
                             if (actionType == ActionType.TypeText)
                                 paramName = "text";
                             break;
                         case "seconds":
+                        case "duration":
                             if (actionType == ActionType.Wait)
                                 paramName = "seconds";
                             else if (actionType == ActionType.Sleep)
@@ -591,8 +626,7 @@ namespace MacroAutomatorGUI
                     }
                     
                     // Convert value if needed
-                    object value = param.Value;
-                    if (paramName == "milliseconds" && key == "seconds" && value is double seconds)
+                    if (paramName == "milliseconds" && (key == "seconds" || key == "duration") && value is double seconds)
                     {
                         value = (int)(seconds * 1000); // Convert seconds to milliseconds
                     }

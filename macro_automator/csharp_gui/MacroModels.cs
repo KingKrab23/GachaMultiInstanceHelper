@@ -160,6 +160,59 @@ namespace MacroAutomatorGUI
             // Parse key combination (e.g., "ctrl+shift+p")
             string[] keys = keyCombo.ToLower().Split('+');
             
+            // Check if this is a Ctrl+Alt combination
+            bool hasCtrl = keys.Contains("ctrl") || keys.Contains("control");
+            bool hasAlt = keys.Contains("alt");
+            
+            // For Ctrl+Alt combinations, use SendKeys which works better across applications
+            if (hasCtrl && hasAlt)
+            {
+                try
+                {
+                    // Convert to SendKeys format
+                    string sendKeysFormat = "";
+                    
+                    // Add modifiers
+                    if (hasCtrl) sendKeysFormat += "^";
+                    if (hasAlt) sendKeysFormat += "%";
+                    if (keys.Contains("shift")) sendKeysFormat += "+";
+                    
+                    // Add the main key
+                    string mainKeyStr = keys.LastOrDefault(k => k != "ctrl" && k != "control" && k != "alt" && k != "shift");
+                    if (!string.IsNullOrEmpty(mainKeyStr))
+                    {
+                        // Handle special keys
+                        switch (mainKeyStr)
+                        {
+                            case "f1": case "f2": case "f3": case "f4": case "f5": 
+                            case "f6": case "f7": case "f8": case "f9": case "f10": 
+                            case "f11": case "f12":
+                                sendKeysFormat += "{" + mainKeyStr.ToUpper() + "}";
+                                break;
+                            default:
+                                // For numbers and letters, just add them directly
+                                sendKeysFormat += mainKeyStr;
+                                break;
+                        }
+                    }
+                    
+                    Console.WriteLine($"Sending key combination {keyCombo} using SendKeys: {sendKeysFormat}");
+                    
+                    // Send the keys
+                    SendKeys.SendWait(sendKeysFormat);
+                    
+                    // Add a small delay after key press
+                    Thread.Sleep(100);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error using SendKeys: {ex.Message}");
+                    // Fall through to the standard method
+                }
+            }
+            
+            // Standard method for non-Ctrl+Alt combinations
             List<byte> modifierKeys = new List<byte>();
             byte mainKey = 0;
             
@@ -193,42 +246,135 @@ namespace MacroAutomatorGUI
             
             try
             {
+                // Special handling for Ctrl+Alt combinations (which can be interpreted as AltGr)
+                bool hasCtrlAlt = modifierKeys.Contains(0x11) && modifierKeys.Contains(0x12);
+                
+                // Use SendInput for more reliable key presses
+                List<INPUT> inputs = new List<INPUT>();
+                
                 // Press all modifier keys
                 foreach (byte modKey in modifierKeys)
                 {
-                    keybd_event(modKey, 0, 0, 0);
-                    Thread.Sleep(10);
+                    INPUT modKeyDown = new INPUT();
+                    modKeyDown.type = 1; // INPUT_KEYBOARD
+                    modKeyDown.u.ki.wVk = modKey;
+                    modKeyDown.u.ki.dwFlags = 0; // Key down
+                    
+                    // For Ctrl+Alt combinations, use KEYEVENTF_EXTENDEDKEY for Alt
+                    if (hasCtrlAlt && modKey == 0x12)
+                    {
+                        modKeyDown.u.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+                    }
+                    
+                    inputs.Add(modKeyDown);
                 }
                 
-                // Press and release the main key
+                // Press the main key
                 if (mainKey != 0)
                 {
-                    keybd_event(mainKey, 0, 0, 0);
-                    Thread.Sleep(10);
-                    keybd_event(mainKey, 0, KEYEVENTF_KEYUP, 0);
-                    Thread.Sleep(10);
+                    INPUT keyDown = new INPUT();
+                    keyDown.type = 1; // INPUT_KEYBOARD
+                    keyDown.u.ki.wVk = mainKey;
+                    keyDown.u.ki.dwFlags = 0; // Key down
+                    
+                    // For Ctrl+Alt combinations, use KEYEVENTF_EXTENDEDKEY for the main key
+                    if (hasCtrlAlt)
+                    {
+                        keyDown.u.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+                    }
+                    
+                    inputs.Add(keyDown);
+                    
+                    // Release the main key
+                    INPUT keyUp = new INPUT();
+                    keyUp.type = 1; // INPUT_KEYBOARD
+                    keyUp.u.ki.wVk = mainKey;
+                    keyUp.u.ki.dwFlags = KEYEVENTF_KEYUP;
+                    
+                    // For Ctrl+Alt combinations, use KEYEVENTF_EXTENDEDKEY for the main key
+                    if (hasCtrlAlt)
+                    {
+                        keyUp.u.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+                    }
+                    
+                    inputs.Add(keyUp);
                 }
                 
                 // Release all modifier keys in reverse order
                 for (int i = modifierKeys.Count - 1; i >= 0; i--)
                 {
-                    keybd_event(modifierKeys[i], 0, KEYEVENTF_KEYUP, 0);
-                    Thread.Sleep(10);
+                    INPUT modKeyUp = new INPUT();
+                    modKeyUp.type = 1; // INPUT_KEYBOARD
+                    modKeyUp.u.ki.wVk = modifierKeys[i];
+                    modKeyUp.u.ki.dwFlags = KEYEVENTF_KEYUP;
+                    
+                    // For Ctrl+Alt combinations, use KEYEVENTF_EXTENDEDKEY for Alt
+                    if (hasCtrlAlt && modifierKeys[i] == 0x12)
+                    {
+                        modKeyUp.u.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+                    }
+                    
+                    inputs.Add(modKeyUp);
+                }
+                
+                // Send all inputs at once for more reliable key presses
+                if (inputs.Count > 0)
+                {
+                    SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+                    
+                    // Add a small delay after key press
+                    Thread.Sleep(50);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error simulating key press: {ex.Message}");
                 
-                // Ensure all keys are released in case of error
-                if (mainKey != 0)
+                // Fallback to the old method if SendInput fails
+                try
                 {
-                    keybd_event(mainKey, 0, KEYEVENTF_KEYUP, 0);
+                    // Special handling for Ctrl+Alt combinations
+                    bool hasCtrlAlt = modifierKeys.Contains(0x11) && modifierKeys.Contains(0x12);
+                    int extendedFlag = hasCtrlAlt ? KEYEVENTF_EXTENDEDKEY : 0;
+                    
+                    // Press all modifier keys
+                    foreach (byte modKey in modifierKeys)
+                    {
+                        uint flags = 0;
+                        if (hasCtrlAlt && modKey == 0x12)
+                        {
+                            flags |= KEYEVENTF_EXTENDEDKEY;
+                        }
+                        
+                        keybd_event(modKey, 0, (int)flags, 0);
+                        Thread.Sleep(10);
+                    }
+                    
+                    // Press and release the main key
+                    if (mainKey != 0)
+                    {
+                        keybd_event(mainKey, 0, (int)extendedFlag, 0);
+                        Thread.Sleep(10);
+                        keybd_event(mainKey, 0, (int)(KEYEVENTF_KEYUP | extendedFlag), 0);
+                        Thread.Sleep(10);
+                    }
+                    
+                    // Release all modifier keys in reverse order
+                    for (int i = modifierKeys.Count - 1; i >= 0; i--)
+                    {
+                        uint flags = KEYEVENTF_KEYUP;
+                        if (hasCtrlAlt && modifierKeys[i] == 0x12)
+                        {
+                            flags |= KEYEVENTF_EXTENDEDKEY;
+                        }
+                        
+                        keybd_event(modifierKeys[i], 0, (int)flags, 0);
+                        Thread.Sleep(10);
+                    }
                 }
-                
-                foreach (byte modKey in modifierKeys)
+                catch (Exception fallbackEx)
                 {
-                    keybd_event(modKey, 0, KEYEVENTF_KEYUP, 0);
+                    Console.WriteLine($"Fallback key press also failed: {fallbackEx.Message}");
                 }
             }
         }
@@ -385,19 +531,32 @@ namespace MacroAutomatorGUI
             // Handle special keys
             switch (keyName.ToLower())
             {
+                // Common keys
                 case "enter": return 0x0D;
+                case "return": return 0x0D;
                 case "tab": return 0x09;
                 case "space": return 0x20;
+                case "spacebar": return 0x20;
                 case "backspace": return 0x08;
+                case "back": return 0x08;
                 case "escape": return 0x1B;
+                case "esc": return 0x1B;
+                
+                // Arrow keys
                 case "up": return 0x26;
                 case "down": return 0x28;
                 case "left": return 0x25;
                 case "right": return 0x27;
+                
+                // Modifier keys
                 case "ctrl": return 0x11;
+                case "control": return 0x11;
                 case "alt": return 0x12;
                 case "shift": return 0x10;
                 case "win": return 0x5B;
+                case "windows": return 0x5B;
+                
+                // Function keys
                 case "f1": return 0x70;
                 case "f2": return 0x71;
                 case "f3": return 0x72;
@@ -410,12 +569,69 @@ namespace MacroAutomatorGUI
                 case "f10": return 0x79;
                 case "f11": return 0x7A;
                 case "f12": return 0x7B;
+                
+                // Navigation keys
+                case "home": return 0x24;
+                case "end": return 0x23;
+                case "pageup": return 0x21;
+                case "pagedown": return 0x22;
+                case "insert": return 0x2D;
+                case "ins": return 0x2D;
+                case "delete": return 0x2E;
+                case "del": return 0x2E;
+                
+                // Lock keys
+                case "capslock": return 0x14;
+                case "numlock": return 0x90;
+                case "scrolllock": return 0x91;
+                
+                // Numpad keys
+                case "numpad0": return 0x60;
+                case "numpad1": return 0x61;
+                case "numpad2": return 0x62;
+                case "numpad3": return 0x63;
+                case "numpad4": return 0x64;
+                case "numpad5": return 0x65;
+                case "numpad6": return 0x66;
+                case "numpad7": return 0x67;
+                case "numpad8": return 0x68;
+                case "numpad9": return 0x69;
+                case "multiply": return 0x6A;
+                case "add": return 0x6B;
+                case "subtract": return 0x6D;
+                case "decimal": return 0x6E;
+                case "divide": return 0x6F;
+                
+                // Browser/Media keys
+                case "volumemute": return 0xAD;
+                case "volumedown": return 0xAE;
+                case "volumeup": return 0xAF;
+                case "medianexttrack": return 0xB0;
+                case "mediaprevtrack": return 0xB1;
+                case "mediastop": return 0xB2;
+                case "mediaplaypause": return 0xB3;
+                
                 default:
                     // If it's a single character, convert it
                     if (keyName.Length == 1)
                     {
-                        return (byte)VkKeyScan(keyName[0]);
+                        short vkKeyScan = VkKeyScan(keyName[0]);
+                        if (vkKeyScan != -1)
+                        {
+                            return (byte)(vkKeyScan & 0xff);
+                        }
                     }
+                    
+                    // Try to parse as a hexadecimal virtual key code
+                    if (keyName.StartsWith("0x") && byte.TryParse(keyName.Substring(2), 
+                        System.Globalization.NumberStyles.HexNumber, 
+                        System.Globalization.CultureInfo.InvariantCulture, 
+                        out byte vkCode))
+                    {
+                        return vkCode;
+                    }
+                    
+                    Console.WriteLine($"Unknown key: {keyName}");
                     return 0;
             }
         }

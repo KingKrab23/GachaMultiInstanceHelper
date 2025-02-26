@@ -1,4 +1,3 @@
-import customtkinter as ctk
 from macro_launcher import rename_hbr_windows, type_salted_emails, scan_outlook_for_codes, enter_verification_codes, force_outlook_sync
 from screenshot_windows import screenshot_windows
 from image_matcher import match_memorias
@@ -7,12 +6,17 @@ import queue
 import time
 import json
 import os
+import sys
+import yaml
 from datetime import datetime
 import csv
-from PIL import Image
+from PIL import Image, ImageTk
 from pathlib import Path
 import functools
-import keyboard  # Added for global hotkeys
+import keyboard
+from key_press_handler import register_hotkey, send_key_combo
+from tkinter import filedialog, messagebox
+import customtkinter as ctk
 
 # Global cache for memoria images to improve performance
 MEMORIA_IMAGE_CACHE = {}
@@ -37,15 +41,14 @@ class MacroGUI(ctk.CTk):
 
         # Define hotkey mappings
         self.hotkey_mappings = {
-            "rename_windows": "Ctrl+Alt+1",
+            "rename_windows": "1",
             "type_emails": "Ctrl+Alt+2",
             "scan_outlook": "Ctrl+Alt+3",
             "force_sync": "Ctrl+Alt+4",
             "enter_codes": "Ctrl+Alt+5",
             "take_screenshots": "Ctrl+Alt+6",
             "match_memorias": "Ctrl+Alt+7",
-            "view_memoria_results": "Ctrl+Alt+8",
-            "ld_player": "Ctrl+Alt+9"  # New hotkey for LD Player control
+            "view_memoria_results": "Ctrl+Alt+8"
         }
 
         # Create buttons
@@ -124,19 +127,62 @@ class MacroGUI(ctk.CTk):
         self.after(100, self.check_queue)
 
         # Global hotkey setup
-        keyboard.add_hotkey(self.hotkey_mappings['rename_windows'].lower(), self.rename_windows)
-        keyboard.add_hotkey(self.hotkey_mappings['type_emails'].lower(), self.type_emails)
-        keyboard.add_hotkey(self.hotkey_mappings['scan_outlook'].lower(), self.scan_outlook)
-        keyboard.add_hotkey(self.hotkey_mappings['force_sync'].lower(), self.force_sync)
-        keyboard.add_hotkey(self.hotkey_mappings['enter_codes'].lower(), self.enter_codes)
-        keyboard.add_hotkey(self.hotkey_mappings['take_screenshots'].lower(), self.take_screenshots)
-        keyboard.add_hotkey(self.hotkey_mappings['match_memorias'].lower(), self.match_memorias)
-        keyboard.add_hotkey(self.hotkey_mappings['view_memoria_results'].lower(), self.view_memoria_results)
+        self.setup_hotkeys()
 
         # Log hotkey information
         self.log("Global hotkeys registered. They will work even when this window is not in focus.")
         for action, hotkey in self.hotkey_mappings.items():
             self.log(f"  {action.replace('_', ' ').title()}: {hotkey}")
+
+    def setup_hotkeys(self):
+        """Set up global hotkeys for the application"""
+        try:
+            # Define the key event handler within this method to have access to self
+            def on_key_event(e):
+                """Handle key events"""
+                # Only process key down events to avoid duplicate triggers
+                if e.event_type == keyboard.KEY_DOWN:
+                    # Handle numeric keys that might be reported differently
+                    key_name = e.name
+                    # Some keyboard libraries report number keys as '1', others as 'key_1'
+                    if key_name.startswith('key_'):
+                        key_name = key_name[4:]
+                    
+                    # For simple number keys (like "1" for rename_windows)
+                    if not keyboard.is_pressed('ctrl') and not keyboard.is_pressed('alt') and not keyboard.is_pressed('shift'):
+                        # Check for simple key mappings
+                        for action, hotkey in self.hotkey_mappings.items():
+                            if hotkey.lower() == key_name.lower():
+                                print(f"Hotkey detected: {key_name} for action: {action}")
+                                self.after(10, lambda a=action: self.handle_hotkey(a))
+                                return
+                    
+                    # For Ctrl+Alt+Number combinations
+                    elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('alt'):
+                        # Check for Ctrl+Alt combinations
+                        for action, hotkey in self.hotkey_mappings.items():
+                            # Normalize the hotkey format for comparison
+                            normalized_hotkey = hotkey.lower().replace(' ', '')
+                            expected_combo = f"ctrl+alt+{key_name}".lower()
+                            
+                            if normalized_hotkey == expected_combo:
+                                print(f"Hotkey detected: Ctrl+Alt+{key_name} for action: {action}")
+                                self.after(10, lambda a=action: self.handle_hotkey(a))
+                                return
+            
+            # Register a single keyboard hook for all hotkeys
+            keyboard.hook(on_key_event)
+            
+            # Log registered hotkeys
+            for action, hotkey in self.hotkey_mappings.items():
+                print(f"Monitoring for hotkey: {hotkey} for action: {action}")
+            
+            self.log("Global hotkeys registered using keyboard hook.")
+            
+            return True
+        except Exception as e:
+            print(f"Error setting up keyboard hook: {str(e)}")
+            return False
 
     def check_queue(self):
         """Check for new messages in the queue and display them"""
@@ -392,7 +438,11 @@ class MacroGUI(ctk.CTk):
                     }
             
             # Calculate overall score (sum of custom scores of top 3 memorias)
-            top_memorias = sorted(memoria_scores.items(), key=lambda x: (x[1]['custom_score'], x[1]['match_quality_score']), reverse=True)[:3]
+            top_memorias = sorted(
+                [(memoria, info) for memoria, info in memoria_scores.items()],
+                key=lambda x: (x[1]['custom_score'], x[1]['match_quality_score']),
+                reverse=True
+            )[:3]
             if top_memorias:
                 total_score = sum(info['custom_score'] for _, info in top_memorias)
                 readable_results[email]['score'] = total_score
@@ -743,6 +793,25 @@ class MacroGUI(ctk.CTk):
             self.log(f"Results exported to {filename}")
         except Exception as e:
             self.log(f"Error exporting to text: {str(e)}")
+
+    def handle_hotkey(self, action):
+        """Handle hotkey press"""
+        if action == "rename_windows":
+            self.rename_windows()
+        elif action == "type_emails":
+            self.type_emails()
+        elif action == "scan_outlook":
+            self.scan_outlook()
+        elif action == "force_sync":
+            self.force_sync()
+        elif action == "enter_codes":
+            self.enter_codes()
+        elif action == "take_screenshots":
+            self.take_screenshots()
+        elif action == "match_memorias":
+            self.match_memorias()
+        elif action == "view_memoria_results":
+            self.view_memoria_results()
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("dark")
