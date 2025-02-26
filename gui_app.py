@@ -37,15 +37,15 @@ class MacroGUI(ctk.CTk):
 
         # Define hotkey mappings
         self.hotkey_mappings = {
-            "rename_windows": "Ctrl+Shift+R",
-            "type_emails": "Ctrl+Shift+T",
-            "scan_outlook": "Ctrl+Shift+S",
-            "force_sync": "Ctrl+Shift+F",
-            "enter_codes": "Ctrl+Shift+E",
-            "take_screenshots": "Ctrl+Shift+P",
-            "match_memorias": "Ctrl+Shift+M",
-            "view_memoria_results": "Ctrl+Shift+V",
-            "ld_player": "Ctrl+Shift+L"  # New hotkey for LD Player control
+            "rename_windows": "Ctrl+Alt+1",
+            "type_emails": "Ctrl+Alt+2",
+            "scan_outlook": "Ctrl+Alt+3",
+            "force_sync": "Ctrl+Alt+4",
+            "enter_codes": "Ctrl+Alt+5",
+            "take_screenshots": "Ctrl+Alt+6",
+            "match_memorias": "Ctrl+Alt+7",
+            "view_memoria_results": "Ctrl+Alt+8",
+            "ld_player": "Ctrl+Alt+9"  # New hotkey for LD Player control
         }
 
         # Create buttons

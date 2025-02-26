@@ -455,13 +455,50 @@ namespace MacroAutomatorGUI
                                 foreach (var actionObj in actionsList)
                                 {
                                     var actionDict = actionObj as Dictionary<object, object>;
-                                    if (actionDict != null && actionDict.ContainsKey("type"))
+                                    if (actionDict != null)
                                     {
-                                        string actionType = actionDict["type"].ToString().ToLower();
-                                        MacroAction action = ConvertYamlActionToMacroAction(actionType, actionDict);
-                                        if (action != null)
+                                        // Check if this is the old format (with 'Type' and 'Parameters')
+                                        if (actionDict.ContainsKey("Type") && actionDict.ContainsKey("Parameters"))
                                         {
-                                            sequence.Actions.Add(action);
+                                            string actionType = actionDict["Type"].ToString();
+                                            var parameters = actionDict["Parameters"] as Dictionary<object, object>;
+                                            
+                                            // Convert to ActionType enum
+                                            ActionType type;
+                                            if (Enum.TryParse(actionType, true, out type))
+                                            {
+                                                MacroAction action = new MacroAction
+                                                {
+                                                    Type = type,
+                                                    Parameters = new Dictionary<string, object>()
+                                                };
+                                                
+                                                // Copy parameters
+                                                foreach (var param in parameters)
+                                                {
+                                                    action.Parameters[param.Key.ToString()] = param.Value;
+                                                }
+                                                
+                                                sequence.Actions.Add(action);
+                                            }
+                                            else
+                                            {
+                                                AddLogMessage($"Unknown action type: {actionType}");
+                                            }
+                                        }
+                                        // Check if this is the new format (with 'type' key)
+                                        else if (actionDict.ContainsKey("type"))
+                                        {
+                                            string actionType = actionDict["type"].ToString().ToLower();
+                                            MacroAction action = ConvertYamlActionToMacroAction(actionType, actionDict);
+                                            if (action != null)
+                                            {
+                                                sequence.Actions.Add(action);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            AddLogMessage("Action missing type information");
                                         }
                                     }
                                 }
@@ -471,10 +508,15 @@ namespace MacroAutomatorGUI
                         }
                     }
                 }
+                else
+                {
+                    AddLogMessage("YAML file does not have the expected structure with 'macros' key");
+                }
             }
             catch (Exception ex)
             {
-                AddLogMessage($"Error parsing YAML file {Path.GetFileName(filePath)}: {ex.Message}");
+                MessageBox.Show($"Error loading YAML file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AddLogMessage($"Error loading YAML file: {ex.Message}");
             }
             
             return sequences;
@@ -1184,17 +1226,15 @@ namespace MacroAutomatorGUI
                             }
                             else if (saveDialog.FileName.EndsWith(".yaml") || saveDialog.FileName.EndsWith(".yml"))
                             {
-                                // Save as YAML
-                                var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
-                                string yaml = serializer.Serialize(sequence);
-                                File.WriteAllText(saveDialog.FileName, yaml);
+                                // Save as YAML using YamlHelper to ensure correct format with settings and macros keys
+                                List<MacroSequence> sequenceList = new List<MacroSequence> { sequence };
+                                YamlHelper.SaveMacroSequences(sequenceList, saveDialog.FileName);
                             }
                             else
                             {
-                                // Default to YAML if no recognized extension
-                                var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
-                                string yaml = serializer.Serialize(sequence);
-                                File.WriteAllText(saveDialog.FileName, yaml);
+                                // Default to YAML if no recognized extension, using YamlHelper
+                                List<MacroSequence> sequenceList = new List<MacroSequence> { sequence };
+                                YamlHelper.SaveMacroSequences(sequenceList, saveDialog.FileName);
                             }
                             
                             // Update UI
