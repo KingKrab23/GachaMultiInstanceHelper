@@ -361,6 +361,10 @@ def force_outlook_sync():
     """Force Outlook to sync all accounts"""
     try:
         import win32com.client
+        import pythoncom
+        
+        # Initialize COM
+        pythoncom.CoInitialize()
         
         # Get Outlook application
         outlook = win32com.client.Dispatch("Outlook.Application")
@@ -369,6 +373,7 @@ def force_outlook_sync():
         explorer = outlook.ActiveExplorer()
         if not explorer:
             print("No active Outlook window found")
+            pythoncom.CoUninitialize()
             return False
             
         print("Starting Outlook sync...")
@@ -381,34 +386,16 @@ def force_outlook_sync():
         print("Waiting for sync to complete...")
         time.sleep(5)  # Increased wait time to allow for sync
         
+        # Clean up COM
+        pythoncom.CoUninitialize()
+        
         return True
     except Exception as e:
         print(f"Error forcing Outlook sync: {str(e)}")
-        return False
-
-def process_email(email, codes_dict):
-    """
-    Process a single email to look for verification code
-    """
-    try:
-        subject = email.Subject
-        # Look for verification code in subject with format "[Yostar] Your Verification Code is XXXXXX"
-        match = re.search(r'\[Yostar\] Your Verification Code is (\d{6})', subject)
-        if match:
-            code = match.group(1)
-            # Get recipient
-            recipient = email.To
-            received_time = email.ReceivedTime.strftime("%Y-%m-%d %H:%M:%S")
-            
-            # Save the code
-            save_verification_code(received_time, code, recipient, recipient)
-            print(f"Found code {code} for {recipient} in subject: {subject}")
-            return True
-            
-        return False
-        
-    except Exception as e:
-        print(f"Error processing email: {str(e)}")
+        try:
+            pythoncom.CoUninitialize()
+        except:
+            pass
         return False
 
 def scan_outlook_for_codes():
@@ -416,12 +403,16 @@ def scan_outlook_for_codes():
     Scan Outlook for verification codes, focusing on unread emails first
     """
     import win32com.client
+    import pythoncom
     import re
     from datetime import datetime
     
     try:
         print("Forcing Outlook sync before scanning...")
         force_outlook_sync()
+        
+        # Initialize COM
+        pythoncom.CoInitialize()
         
         # Connect to Outlook
         outlook = win32com.client.Dispatch("Outlook.Application")
@@ -486,11 +477,45 @@ def scan_outlook_for_codes():
                         print("Successfully processed read email")
                     count += 1
         
+        # Clean up COM
+        pythoncom.CoUninitialize()
+        
         return found_codes
         
     except Exception as e:
         print(f"Error connecting to Outlook: {str(e)}")
+        try:
+            pythoncom.CoUninitialize()
+        except:
+            pass
         return None
+    finally:
+        pythoncom.CoUninitialize()
+
+def process_email(email, codes_dict):
+    """
+    Process a single email to look for verification code
+    """
+    try:
+        subject = email.Subject
+        # Look for verification code in subject with format "[Yostar] Your Verification Code is XXXXXX"
+        match = re.search(r'\[Yostar\] Your Verification Code is (\d{6})', subject)
+        if match:
+            code = match.group(1)
+            # Get recipient
+            recipient = email.To
+            received_time = email.ReceivedTime.strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Save the code
+            save_verification_code(received_time, code, recipient, recipient)
+            print(f"Found code {code} for {recipient} in subject: {subject}")
+            return True
+            
+        return False
+        
+    except Exception as e:
+        print(f"Error processing email: {str(e)}")
+        return False
 
 def enter_verification_codes():
     """
