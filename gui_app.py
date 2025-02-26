@@ -286,18 +286,18 @@ class MacroGUI(ctk.CTk):
                             best_matches.append({
                                 'memoria': best_match['memoria_name'],
                                 'custom_score': best_match['custom_score'],
-                                'match_quality': best_match['match_quality'],
+                                'match_quality_score': best_match['match_quality_score'],
                                 'screenshot': os.path.basename(match_result['screenshot_path'])
                             })
                     
-                    # Sort by custom score and then by match quality
-                    best_matches.sort(key=lambda x: (x['custom_score'], x['match_quality']), reverse=True)
+                    # Sort by custom score and then by match quality score
+                    best_matches.sort(key=lambda x: (x['custom_score'], x['match_quality_score']), reverse=True)
                     top_matches = best_matches[:3]
                     
                     if top_matches:
                         self.log(f"\nEmail: {email}")
                         for i, match in enumerate(top_matches):
-                            self.log(f"  Match {i+1}: {match['memoria']} (Score: {match['custom_score']}, Quality: {match['match_quality']:.2f}) in {match['screenshot']}")
+                            self.log(f"  Match {i+1}: {match['memoria']} (Score: {match['custom_score']}, Quality: {match['match_quality_score']:.2f}) in {match['screenshot']}")
                 
                 # Save results to a more readable format
                 self.save_readable_results(results)
@@ -345,7 +345,7 @@ class MacroGUI(ctk.CTk):
                     all_matches.append({
                         'memoria': match['memoria_name'],
                         'custom_score': match['custom_score'],
-                        'match_quality': match['match_quality']
+                        'match_quality_score': match['match_quality_score']
                     })
             
             # Get unique memorias with their best scores
@@ -353,16 +353,16 @@ class MacroGUI(ctk.CTk):
             for match in all_matches:
                 memoria = match['memoria']
                 custom_score = match['custom_score']
-                match_quality = match['match_quality']
+                match_quality = match['match_quality_score']
                 
-                if memoria not in memoria_scores or match_quality > memoria_scores[memoria]['match_quality']:
+                if memoria not in memoria_scores or match_quality > memoria_scores[memoria]['match_quality_score']:
                     memoria_scores[memoria] = {
                         'custom_score': custom_score,
-                        'match_quality': match_quality
+                        'match_quality_score': match_quality
                     }
             
             # Calculate overall score (sum of custom scores of top 3 memorias)
-            top_memorias = sorted(memoria_scores.items(), key=lambda x: (x[1]['custom_score'], x[1]['match_quality']), reverse=True)[:3]
+            top_memorias = sorted(memoria_scores.items(), key=lambda x: (x[1]['custom_score'], x[1]['match_quality_score']), reverse=True)[:3]
             if top_memorias:
                 total_score = sum(info['custom_score'] for _, info in top_memorias)
                 readable_results[email]['score'] = total_score
