@@ -509,6 +509,11 @@ def process_email(email, codes_dict):
             # Save the code
             save_verification_code(received_time, code, recipient, recipient)
             print(f"Found code {code} for {recipient} in subject: {subject}")
+            
+            # Delete the email after processing
+            email.Delete()
+            print(f"Deleted email with verification code {code}")
+            
             return True
             
         return False
